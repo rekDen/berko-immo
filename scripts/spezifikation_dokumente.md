@@ -341,9 +341,7 @@ Abfrage oder Baum-Prüfung im Handler). Verstoß → `400`.
 - **Soft-Delete** setzt `deleted_at` / `deleted_by`. Bei Ordnern rekursiv auf
   Unterordner und enthaltene Dateien anwenden (rekursive Query oder Trigger).
 - Gelöschte Objekte verschwinden aus allen Standard-Queries (RLS `deleted_at is null`).
-- **Storage-Bereinigung** asynchron: Job/Cron entfernt Storage-Objekte zu Dateien,
-  die länger als X Tage soft-deleted sind, und hard-deleted anschließend die
-  Datensätze. (Papierkorb-UI ist v2.)
+- **Storage-Bereinigung** asynchron: )
 
 ---
 
