@@ -1,0 +1,26 @@
+{
+  "name": "ingestion-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Ingestion-Pipeline-Worker für Daten einlesen (extract → chunk → embed)",
+  "main": "dist/worker.js",
+  "scripts": {
+    "worker": "tsx src/worker.ts",
+    "build": "tsc",
+    "start": "node dist/worker.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.103.0",
+    "mammoth": "^1.9.1",
+    "openai": "^6.34.0",
+    "pg": "^8.20.0",
+    "sharp": "^0.34.2",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/pg": "^8",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}

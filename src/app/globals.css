@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: activates dark: prefix when <html> has .dark class */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Brand accent: the former "indigo" palette is remapped to the brand teal
+   (#00c3d2 as 500), so every existing `indigo-*` utility renders in brand
+   color while keeping tonal depth for hover/dark variants. */
+@theme {
+  --color-indigo-50:  #ebfafb;
+  --color-indigo-100: #ccf3f6;
+  --color-indigo-200: #9ee8ee;
+  --color-indigo-300: #6bdce5;
+  --color-indigo-400: #33cfdb;
+  --color-indigo-500: #00c3d2;
+  --color-indigo-600: #00a6b3;
+  --color-indigo-700: #008993;
+  --color-indigo-800: #006b74;
+  --color-indigo-900: #005258;
+  --color-indigo-950: #00373b;
+
+  /* Berko KI brand accent, used for the "KI" gradient wordmark in the logo */
+  --color-brand-cyan: #00c3d2;
+  --color-accent-strong: #008993;
+  --color-foreground: #111827;
+}
+
+.dark {
+  --color-foreground: #ffffff;
+}
+
+/* Scrollbar — light mode */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Scrollbar — dark mode */
+.dark ::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+@keyframes toast-in {
+  from { transform: translateX(calc(100% + 1rem)); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+.animate-toast-in {
+  animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* Such-Animation (Daten einlesen): diagonaler Scan-Sweep */
+.scan-sweep {
+  background: linear-gradient(115deg, transparent 35%, rgba(99, 102, 241, 0.12) 50%, transparent 65%);
+  background-size: 220% 100%;
+  animation: scan-sweep 2.2s linear infinite;
+}
+@keyframes scan-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -120% 0; }
+}
