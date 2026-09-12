@@ -8,6 +8,9 @@ export interface ParsedRow {
   amount: number;
   purpose: string | null;
   counterpartyIban: string | null;
+  /** Name der Gegenpartei (Zahler bei Zufluss, Empfänger bei Abfluss) — für
+   * B8.2 Stufe 2 (Namensähnlichkeit), s. hausgeldabrechnung-spec.md B8.2. */
+  counterpartyName: string | null;
 }
 
 export interface CsvMapping {
@@ -15,6 +18,7 @@ export interface CsvMapping {
   amountColumn: string;
   purposeColumn?: string;
   counterpartyIbanColumn?: string;
+  counterpartyNameColumn?: string;
   /** 'iso' = YYYY-MM-DD, 'de' = DD.MM.YYYY */
   dateFormat: "iso" | "de";
   /** Dezimaltrennzeichen im Betrag, z. B. "1.234,56" (de) vs. "1234.56" (iso). */
@@ -38,4 +42,16 @@ export interface RowWithSuggestion extends RowWithDuplicateFlag {
   suggestedUnitId: string | null;
   suggestedOwnerId: string | null;
   matchedRuleId: string | null;
+}
+
+/** B8.2 Stufe 2 — nur für Zeilen ohne Stufe-1-Treffer berechnet (s. matching-heuristic.ts). */
+export interface Stage2OwnerSuggestion {
+  ownerId: string; unitId: string; score: number; highlight: boolean; reasons: string[];
+}
+export interface Stage2CostTypeSuggestion {
+  costTypeId: string; score: number; highlight: boolean; reasons: string[];
+}
+export interface RowWithStage2 extends RowWithSuggestion {
+  stage2OwnerSuggestions: Stage2OwnerSuggestion[];
+  stage2CostTypeSuggestion: Stage2CostTypeSuggestion | null;
 }

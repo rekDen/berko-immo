@@ -55,6 +55,12 @@ export function parseCamt053(xml: string): ParsedRow[] {
     const creditorIban = firstChildTextDeep(entry, "CdtrAcct", "IBAN");
     const counterpartyIban = direction === "CRDT" ? debtorIban : creditorIban;
 
+    // Name der Gegenpartei (B8.2 Stufe 2: Namensähnlichkeit) — <Dbtr>/<Cdtr>
+    // sind eigene PartyIdentification-Elemente neben <DbtrAcct>/<CdtrAcct>.
+    const debtorName = firstChildTextDeep(entry, "Dbtr", "Nm");
+    const creditorName = firstChildTextDeep(entry, "Cdtr", "Nm");
+    const counterpartyName = direction === "CRDT" ? debtorName : creditorName;
+
     const signedAmount = parseAmountToCents(amountText, ".") * (direction === "DBIT" ? -1 : 1);
 
     rows.push({
@@ -62,6 +68,7 @@ export function parseCamt053(xml: string): ParsedRow[] {
       amount: signedAmount,
       purpose,
       counterpartyIban,
+      counterpartyName,
     });
   }
   return rows;

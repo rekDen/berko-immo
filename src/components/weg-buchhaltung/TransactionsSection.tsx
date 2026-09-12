@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Loader2, Plus, X, Receipt, Upload, Paperclip, Sparkles } from "lucide-react";
 import {
-  type BankAccount, type ChartAccount, type CostType, type Unit, type Transaction,
+  type BankAccount, type ChartAccount, type CostType, type Unit, type Owner, type Transaction,
   TX_KIND_LABELS, formatCents, inputCls, labelCls, cardCls,
 } from "./shared";
 import { ImportPanel } from "./ImportPanel";
@@ -13,10 +13,10 @@ import { ImportPanel } from "./ImportPanel";
 // ════════════════════════════════════════════════════════════════════════
 
 export function TransactionsSection({
-  propertyId, bankAccounts, chartAccounts, costTypes, units, transactions, onChange, onError,
+  propertyId, bankAccounts, chartAccounts, costTypes, units, owners, transactions, onChange, onError,
 }: {
   propertyId: string; bankAccounts: BankAccount[]; chartAccounts: ChartAccount[]; costTypes: CostType[];
-  units: Unit[]; transactions: Transaction[]; onChange: () => void; onError: (msg: string) => void;
+  units: Unit[]; owners: Owner[]; transactions: Transaction[]; onChange: () => void; onError: (msg: string) => void;
 }) {
   const [showNew, setShowNew] = useState(false);
   const [bankAccountId, setBankAccountId] = useState("");
@@ -89,6 +89,8 @@ export function TransactionsSection({
         <ImportPanel
           bankAccounts={bankAccounts}
           costTypes={costTypes}
+          units={units}
+          owners={owners}
           onImported={() => { setShowImport(false); onChange(); }}
           onError={onError}
         />

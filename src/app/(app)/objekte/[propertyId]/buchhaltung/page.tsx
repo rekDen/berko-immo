@@ -99,6 +99,7 @@ export default function PropertyBuchhaltungPage() {
               chartAccounts={chartAccounts}
               costTypes={costTypes}
               units={units}
+              owners={owners}
               transactions={transactions}
               onChange={load}
               onError={setError}

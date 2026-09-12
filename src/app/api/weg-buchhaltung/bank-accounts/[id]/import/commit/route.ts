@@ -3,6 +3,7 @@ import { withAuth, unauthorized, badRequest } from "@/lib/supabase/api";
 
 type CommitRow = {
   bookingDate: string; amount: number; purpose: string | null; counterpartyIban: string | null;
+  counterpartyName?: string | null;
   isDuplicate: boolean; include: boolean;
   costTypeId?: string | null; unitId?: string | null; ownerId?: string | null;
 };
@@ -57,12 +58,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         bank_account_id: bankAccountId,
         booking_date: r.bookingDate,
         amount: r.amount,
-        kind: r.amount >= 0 ? "income" : "expense",
+        // Ein Zufluss, dem eine Einheit zugeordnet ist (per Stufe 1/2 oder
+        // manuell), ist eine Hausgeldzahlung — nur so greifen später der
+        // Sollstellungsausgleich (B7.6) und die Ist-Zuführung zur Rücklage
+        // (B7.7). Ohne Einheit bleibt es eine allgemeine Einnahme.
+        kind: r.amount >= 0 ? (r.unitId ? "advance_payment" : "income") : "expense",
         cost_type_id: r.costTypeId ?? null,
         unit_id: r.unitId ?? null,
         owner_id: r.ownerId ?? null,
         purpose: r.purpose,
         counterparty_iban: r.counterpartyIban,
+        counterparty_name: r.counterpartyName ?? null,
         status: "suggested",
         source: "bank_import",
         import_id: importRun.id,

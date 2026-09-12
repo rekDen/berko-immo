@@ -27,6 +27,7 @@ describe("parseCsv", () => {
       amount: -92000,
       purpose: "Reparatur Dachrinne",
       counterpartyIban: "DE12345678901234567890",
+      counterpartyName: null,
     });
   });
 
@@ -46,5 +47,14 @@ describe("parseCsv", () => {
   it("ignoriert leere Zeilen", () => {
     const withBlank = csv + "\n\n";
     expect(parseCsv(withBlank, mapping)).toHaveLength(2);
+  });
+
+  it("liest den Gegenparteinamen, falls die Spalte zugeordnet ist", () => {
+    const withName = [
+      "Buchungstag;Betrag;Verwendungszweck;IBAN;Name",
+      "05.03.2026;-920,00;Reparatur Dachrinne;DE12345678901234567890;Dachdecker Schmidt GmbH",
+    ].join("\n");
+    const rows = parseCsv(withName, { ...mapping, counterpartyNameColumn: "Name" });
+    expect(rows[0].counterpartyName).toBe("Dachdecker Schmidt GmbH");
   });
 });

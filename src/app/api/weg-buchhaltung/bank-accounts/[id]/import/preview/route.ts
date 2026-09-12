@@ -4,7 +4,62 @@ import { parseCsv } from "@/lib/weg-buchhaltung/import/csv";
 import { parseCamt053 } from "@/lib/weg-buchhaltung/import/camt053";
 import { markDuplicates, purposeHash } from "@/lib/weg-buchhaltung/import/duplicates";
 import { applyMatchingRules } from "@/lib/weg-buchhaltung/import/matching";
-import type { CsvMapping } from "@/lib/weg-buchhaltung/import/types";
+import {
+  computeStage2IncomingSuggestions, computeStage2OutgoingSuggestion,
+  type HeuristicOwnerCandidate,
+} from "@/lib/weg-buchhaltung/matching-heuristic";
+import type { CsvMapping, RowWithStage2 } from "@/lib/weg-buchhaltung/import/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+// B8.2 Stufe 2 (Heuristik): lädt Eigentümer-Kandidaten der WEG mit den für
+// die Bewertung nötigen Zahlen. Vereinfachung ggü. Spec: Eigentümerschaft und
+// Wirtschaftsplan werden zum aktuellen Datum aufgelöst, nicht je Buchungstag
+// der importierten Zeile — für einen Vorschlag (nie automatisch bestätigt)
+// ausreichend genau, vermeidet aber eine Einzelabfrage je Zeile/Datum.
+async function loadOwnerCandidates(supabase: SupabaseClient, propertyId: string): Promise<HeuristicOwnerCandidate[]> {
+  const today = new Date().toISOString().slice(0, 10);
+
+  const { data: roles } = await supabase
+    .from("contact_roles")
+    .select("contact_id, unit_id, units!inner ( id, unit_number, property_id )")
+    .eq("role", "owner")
+    .eq("units.property_id", propertyId)
+    .lte("valid_from", today)
+    .or(`valid_to.is.null,valid_to.gte.${today}`);
+  if (!roles || roles.length === 0) return [];
+
+  const ownerIds = [...new Set(roles.map((r) => r.contact_id as string))];
+  const unitIds = [...new Set(roles.map((r) => r.unit_id as string))];
+
+  const [{ data: contacts }, { data: planAdvances }, { data: receivables }] = await Promise.all([
+    supabase.from("contacts").select("id, first_name, last_name, company_name").in("id", ownerIds),
+    supabase
+      .from("plan_advances").select("unit_id, monthly_operating, monthly_reserve, valid_from, valid_to")
+      .in("unit_id", unitIds).lte("valid_from", today).or(`valid_to.is.null,valid_to.gte.${today}`),
+    supabase.from("receivables").select("owner_id, amount").in("owner_id", ownerIds).in("status", ["open", "partial"]),
+  ]);
+
+  const contactById = new Map((contacts ?? []).map((c) => [c.id as string, c]));
+  const advanceByUnit = new Map((planAdvances ?? []).map((p) => [p.unit_id as string, (p.monthly_operating as number) + (p.monthly_reserve as number)]));
+  const receivablesByOwner = new Map<string, number>();
+  for (const r of receivables ?? []) {
+    receivablesByOwner.set(r.owner_id as string, (receivablesByOwner.get(r.owner_id as string) ?? 0) + (r.amount as number));
+  }
+
+  return roles.map((r): HeuristicOwnerCandidate => {
+    const contact = contactById.get(r.contact_id as string);
+    const unit = r.units as unknown as { unit_number: string };
+    const ownerName = contact?.company_name ?? [contact?.first_name, contact?.last_name].filter(Boolean).join(" ") ?? "";
+    return {
+      ownerId: r.contact_id as string,
+      unitId: r.unit_id as string,
+      ownerName,
+      unitNumber: unit?.unit_number ?? "",
+      monthlyAdvanceCents: advanceByUnit.get(r.unit_id as string) ?? null,
+      openReceivablesCents: receivablesByOwner.get(r.contact_id as string) ?? null,
+    };
+  });
+}
 
 // POST /api/weg-buchhaltung/bank-accounts/[id]/import/preview
 // multipart/form-data: file, format ('csv'|'camt053'), + bei csv: dateColumn,
@@ -43,6 +98,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
         amountColumn,
         purposeColumn: (form.get("purposeColumn") as string) || undefined,
         counterpartyIbanColumn: (form.get("counterpartyIbanColumn") as string) || undefined,
+        counterpartyNameColumn: (form.get("counterpartyNameColumn") as string) || undefined,
         dateFormat: (form.get("dateFormat") as "iso" | "de") || "de",
         decimalSeparator: (form.get("decimalSeparator") as "," | ".") || ",",
         delimiter: (form.get("delimiter") as "," | ";") || ";",
@@ -84,8 +140,54 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }))
   );
 
+  // ── B8.2 Stufe 2 (Heuristik) — nur für Zeilen ohne Stufe-1-Treffer ────────
+  const unresolvedRows = withSuggestions.filter(
+    (r) => !r.isDuplicate && !r.matchedRuleId && !r.suggestedOwnerId && !r.suggestedCostTypeId,
+  );
+  const hasUnresolvedIncoming = unresolvedRows.some((r) => r.amount > 0);
+  const ownerCandidates = hasUnresolvedIncoming ? await loadOwnerCandidates(supabase, bankAccount.property_id) : [];
+
+  const outgoingIbans = [...new Set(
+    unresolvedRows.filter((r) => r.amount < 0 && r.counterpartyIban).map((r) => r.counterpartyIban as string),
+  )];
+  const priorBookingsByIban = new Map<string, { costTypeId: string | null }[]>();
+  if (outgoingIbans.length > 0) {
+    const { data: bankAccountsOfProperty } = await supabase
+      .from("community_bank_accounts").select("id").eq("property_id", bankAccount.property_id);
+    const propertyBankAccountIds = (bankAccountsOfProperty ?? []).map((b) => b.id as string);
+    const { data: priorTx } = await supabase
+      .from("transactions")
+      .select("counterparty_iban, cost_type_id")
+      .in("bank_account_id", propertyBankAccountIds)
+      .in("counterparty_iban", outgoingIbans)
+      .eq("status", "confirmed")
+      .lt("amount", 0);
+    for (const t of priorTx ?? []) {
+      const iban = t.counterparty_iban as string;
+      if (!priorBookingsByIban.has(iban)) priorBookingsByIban.set(iban, []);
+      priorBookingsByIban.get(iban)!.push({ costTypeId: t.cost_type_id as string | null });
+    }
+  }
+
+  const withStage2: RowWithStage2[] = withSuggestions.map((row): RowWithStage2 => {
+    const isUnresolved = !row.isDuplicate && !row.matchedRuleId && !row.suggestedOwnerId && !row.suggestedCostTypeId;
+    if (!isUnresolved) return { ...row, stage2OwnerSuggestions: [], stage2CostTypeSuggestion: null };
+
+    if (row.amount > 0) {
+      const stage2OwnerSuggestions = computeStage2IncomingSuggestions(
+        { amountCents: row.amount, purpose: row.purpose, counterpartyName: row.counterpartyName },
+        ownerCandidates,
+      );
+      return { ...row, stage2OwnerSuggestions, stage2CostTypeSuggestion: null };
+    }
+
+    const priorBookings = row.counterpartyIban ? priorBookingsByIban.get(row.counterpartyIban) ?? [] : [];
+    const stage2CostTypeSuggestion = computeStage2OutgoingSuggestion(priorBookings);
+    return { ...row, stage2OwnerSuggestions: [], stage2CostTypeSuggestion };
+  });
+
   return NextResponse.json({
-    rows: withSuggestions,
+    rows: withStage2,
     summary: {
       total: withSuggestions.length,
       duplicates: withSuggestions.filter((r) => r.isDuplicate).length,

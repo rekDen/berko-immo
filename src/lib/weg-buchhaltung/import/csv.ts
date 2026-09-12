@@ -63,6 +63,7 @@ export function parseCsv(content: string, mapping: CsvMapping): ParsedRow[] {
   const amountIdx = colIndex(mapping.amountColumn);
   const purposeIdx = mapping.purposeColumn ? colIndex(mapping.purposeColumn) : -1;
   const ibanIdx = mapping.counterpartyIbanColumn ? colIndex(mapping.counterpartyIbanColumn) : -1;
+  const nameIdx = mapping.counterpartyNameColumn ? colIndex(mapping.counterpartyNameColumn) : -1;
 
   const rows: ParsedRow[] = [];
   for (let i = 1; i < lines.length; i++) {
@@ -72,6 +73,7 @@ export function parseCsv(content: string, mapping: CsvMapping): ParsedRow[] {
       amount: parseAmountToCents(fields[amountIdx], mapping.decimalSeparator),
       purpose: purposeIdx >= 0 ? (fields[purposeIdx] || null) : null,
       counterpartyIban: ibanIdx >= 0 ? (fields[ibanIdx] || null) : null,
+      counterpartyName: nameIdx >= 0 ? (fields[nameIdx] || null) : null,
     });
   }
   return rows;

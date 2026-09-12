@@ -569,4 +569,52 @@ Kein Bug gefunden. Design-Entscheidung bestätigt sich als richtig: Der bestäti
 
 **K1 (Belegerkennung) ist damit abgeschlossen und live verifiziert.** Damit sind zwei der drei M7-Bausteine (K1, K3) umgesetzt und live geprüft. Verbleibend: Stufe 3 der Zahlungszuordnung — hierfür ist vor Baubeginn noch die in 9.26 aufgeworfene Scope-Frage zu klären (KI direkt nach der vorhandenen vereinfachten Stufe 1, ohne die in der Spec vorgesehene Stufe 2, oder Stufe 2 zuerst nachbauen).
 
+### 9.30 B8.2 Stufe 2 (Heuristik) umgesetzt 2026-09-12 — wartet auf Ausführung
+
+Auftrag: statt Stufe 3 direkt vereinfacht auf die vorhandene Stufe 1 aufzusetzen, zuerst die in der Spec vorgesehene Stufe 2 (Heuristik) nachbauen, damit Stufe 3 später wie in B8.2 beschrieben nur noch für Umsätze ohne Stufe-2-Vorschlag greift.
+
+**Vorab geschlossene Lücke:** Für "Namensähnlichkeit zwischen Zahler und Eigentümer" (B8.2) fehlte der Name der Gegenpartei komplett — nur die IBAN wurde importiert. Ergänzt:
+- `scripts/migration-weg-buchhaltung-stufe2.sql` — neue Spalte `transactions.counterparty_name`.
+- CAMT.053-Parser (`camt053.ts`): liest zusätzlich `<Dbtr><Nm>`/`<Cdtr><Nm>` (je nach Richtung dieselbe Zuordnungslogik wie bei der IBAN).
+- CSV-Import (`csv.ts`): neues optionales Mapping-Feld `counterpartyNameColumn`.
+- Bestehende Tests (`camt053.test.ts`, `csv.test.ts`, `duplicates.test.ts`, `matching.test.ts`) entsprechend angepasst/erweitert.
+
+**Kern von Stufe 2** — `src/lib/weg-buchhaltung/matching-heuristic.ts`, reine Funktionen:
+- `nameSimilarity()` — Jaccard-Ähnlichkeit über normalisierte Wort-Tokens (Umlaute/Groß-Kleinschreibung neutralisiert).
+- `purposeReferencesUnit()` — erkennt eine Einheitennummer unabhängig von Trennzeichen im Verwendungszweck.
+- `computeStage2IncomingSuggestions()` — bewertet bei Eingängen jeden Eigentümer-Kandidaten der WEG nach den drei Spec-Kriterien (Namensähnlichkeit 0,45 · Betrag passt zu offener Sollstellung oder einem Vielfachen des Monatshausgelds 0,35 · Einheitennummer im Verwendungszweck 0,20), gefiltert auf den Standard-Anzeige-Schwellenwert 0,6, mit `highlight` ab 0,85 — exakt die in der Spec genannten Standardwerte.
+- `computeStage2OutgoingSuggestion()` — bei Ausgängen: häufigste Kostenart der bisherigen Buchungen derselben Gegenpartei (IBAN-Historie), Score = Anteil an der Gesamthistorie.
+- Bewusste Vereinfachung: "Monatsangaben im Verwendungszweck" fließen nicht als eigenes Gewicht ein (ein Monatsname unterscheidet nicht zwischen Eigentümern); das unterscheidungskräftige Signal (Einheitennummer) bleibt erhalten. 17 neue Tests, alle grün.
+
+**Integration:** `POST /api/weg-buchhaltung/bank-accounts/[id]/import/preview` erweitert — nach Stufe 1 werden für unaufgelöste Zeilen (kein Regeltreffer, keine Dublette) Stufe-2-Vorschläge berechnet: bei Eingängen über eine neue `loadOwnerCandidates()`-Ladefunktion (Eigentümer der WEG zum aktuellen Datum, mit Monatshausgeld aus `plan_advances` und offenen Sollstellungen aus `receivables`), bei Ausgängen über die IBAN-Historie bestätigter Buchungen. Vereinfachung: Eigentümerschaft/Wirtschaftsplan werden zum heutigen Datum aufgelöst, nicht je Buchungstag der importierten Zeile — für einen nie automatisch bestätigten Vorschlag ausreichend genau.
+
+**Dabei eine funktionale Lücke im bestehenden Commit-Pfad gefunden und behoben:** `POST .../import/commit` setzte für jeden Zufluss immer `kind: 'income'`, unabhängig davon, ob eine Einheit zugeordnet war — eine per Stufe 1 oder 2 einer Einheit zugeordnete Hausgeldzahlung wäre also nie als `advance_payment` gebucht worden und hätte nie den Sollstellungsausgleich (B7.6) oder die Ist-Zuführung zur Rücklage (B7.7) ausgelöst. Behoben: `kind` ist jetzt `advance_payment`, sobald eine `unitId` gesetzt ist (unabhängig davon, ob das durch Stufe 1, Stufe 2 oder manuelle Auswahl geschah). `counterparty_name` wird beim Commit ebenfalls jetzt mitgespeichert.
+
+**UI:** `ImportPanel.tsx` — neue Spalte „Einheit" (Auswahl aus allen Einheiten der WEG, manuell überschreibbar), neues optionales CSV-Mapping-Feld „Spalte Name Gegenpartei", und für Zeilen ohne Stufe-1-Treffer eine Hinweiszeile mit den Stufe-2-Vorschlägen (Punktwert, Begründungstext, „Übernehmen"-Knopf je Kandidat) — nichts wird automatisch übernommen, jede Zuordnung bleibt ein bewusster Klick, wie es B8.3 für Stufe 2 verlangt ("werden nie automatisch bestätigt"). `TransactionsSection.tsx`/die Buchhaltungsseite reichen dafür `owners` (bereits vorhandene Property-Daten) zusätzlich an `ImportPanel` durch.
+
+`tsc --noEmit` clean, keine neuen Lint-Fehler (der vorbestehende `react-hooks/set-state-in-effect`-Fund betrifft unveränderte Zeilen). Volle Testsuite 155/155 grün (17 neue Tests für die Heuristik, bestehende Import-Tests an das neue Feld angepasst).
+
+**Wartet auf Ausführung:** `scripts/migration-weg-buchhaltung-stufe2.sql` im Supabase-SQL-Editor — danach folgt die Live-Verifikation (CAMT.053-Import mit einem noch unbekannten Zahler hochladen, Stufe-2-Vorschlag prüfen, übernehmen, Buchung bestätigen, `kind`/Sollstellungsausgleich kontrollieren).
+
+### 9.31 B8.2 Stufe 2 live verifiziert 2026-09-12 — beide Zweige bestätigt
+
+Migration ausgeführt. Testaufbau: eine frühere bestätigte Buchung (IBAN `DE22...6677`, Kostenart Hausmeister) angelegt, um eine Gegenpartei-Historie für den Ausgänge-Zweig zu haben. Synthetische CAMT.053-Datei mit zwei Einträgen selbst erzeugt:
+
+- **Eingang** 409,80 € von „Stefan Krueger" (bewusst ohne Umlaut, zum Testen der Namensnormalisierung), Verwendungszweck „Hausgeld W01 September 2026" — der echte Eigentümer von W01 in dieser WEG heißt „Stefan Krüger".
+- **Ausgang** -55,00 € an „Hausmeisterservice Müller GmbH", gleiche IBAN wie die vorbereitete Historie, Verwendungszweck „Zusatzauftrag Laubentfernung September".
+
+Import-Vorschau zeigte für beide Zeilen korrekt keinen Stufe-1-Treffer, aber genau die erwarteten Stufe-2-Vorschläge:
+
+- Eingang: „Übernehmen: W01 / Stefan Krüger" — 100 %, Begründung „Namensähnlichkeit zu „Stefan Krüger" (100 %) · Betrag entspricht einer offenen Sollstellung oder einem Vielfachen des Monatshausgelds · Einheit „W01" im Verwendungszweck erkannt". Die Namensnormalisierung (Krueger ↔ Krüger) griff korrekt.
+- Ausgang: „Übernehmen: Hausmeister" — 100 %, Begründung „Einzige bisherige Buchung derselben Gegenpartei nutzte diese Kostenart".
+
+Beide Vorschläge übernommen, Import committet, danach beide Entwürfe über die bestehende „Entwurf — bestätigen"-Funktion bestätigt:
+
+- Der Hausmeister-Ausgang wurde korrekt gebucht, Bilanz-Bankkonto entsprechend belastet.
+- Der Eingang wurde korrekt als `kind = 'advance_payment'` gespeichert (die in 9.30 behobene Lücke griff), mit `unit_id`/`owner_id` aus dem Stufe-2-Vorschlag. Nach Bestätigung: Bankkonto +409,80 €, Konto „1200 · Forderungen gegen Eigentümer" −409,80 € — der Zahlungsausgleichsversuch lief durch (kein Fehler), fand aber keine passende offene Sollstellung (für dieses Test-Objekt sind aktuell keine `receivables`-Zeilen für diesen Eigentümer angelegt — eine Eigenschaft der Testdaten, nicht der Stufe-2-Logik) und blieb daher als ungebundenes Guthaben stehen; das ist erwartetes Verhalten des bereits vorhandenen Ausgleichsmechanismus (B7.6.3), nicht Gegenstand dieses Meilensteins.
+
+Kein Bug in der neuen Stufe-2-Logik gefunden. Alle Testdaten vollständig entfernt (2 neue Transaktionen samt Journalbuchungen, 1 vorbereitete Historien-Transaktion, lokale CAMT-Testdatei). `tsc --noEmit` und volle Testsuite (155/155) abschließend erneut grün.
+
+**B8.2 Stufe 2 (Heuristik) ist damit abgeschlossen und live verifiziert — beide Zweige (Eingänge über Eigentümer-Scoring, Ausgänge über Gegenpartei-Historie) funktionieren wie in der Spec beschrieben.** Damit ist die Voraussetzung für Stufe 3 (KI, M7) erfüllt: sie kann jetzt wie in B8.2 vorgesehen ausschließlich für Umsätze greifen, für die weder Stufe 1 noch Stufe 2 einen Vorschlag liefern.
+
 **Wartet auf Ausführung:** `scripts/migration-hausgeldabrechnung-m3-heating-delete.sql` im Supabase-SQL-Editor — danach folgt die Live-Verifikation (Beispieldatei importieren, Prüfungen C05–C07 gezielt auslösen, Einzelabrechnung-PDF mit Heizkosten prüfen).

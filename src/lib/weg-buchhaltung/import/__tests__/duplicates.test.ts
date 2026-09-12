@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { markDuplicates, purposeHash } from "../duplicates";
 import type { ParsedRow } from "../types";
 
-const row: ParsedRow = { bookingDate: "2026-03-05", amount: -92000, purpose: "Reparatur Dachrinne", counterpartyIban: null };
+const row: ParsedRow = { bookingDate: "2026-03-05", amount: -92000, purpose: "Reparatur Dachrinne", counterpartyIban: null, counterpartyName: null };
 
 describe("purposeHash", () => {
   it("normalisiert Groß-/Kleinschreibung und Whitespace", () => {

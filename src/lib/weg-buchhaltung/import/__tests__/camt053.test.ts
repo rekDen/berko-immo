@@ -13,6 +13,7 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
           <TxDtls>
             <RmtInf><Ustrd>Reparatur Dachrinne</Ustrd></RmtInf>
             <RltdPties>
+              <Cdtr><Nm>Dachdecker Schmidt GmbH</Nm></Cdtr>
               <CdtrAcct><Id><IBAN>DE12345678901234567890</IBAN></Id></CdtrAcct>
             </RltdPties>
           </TxDtls>
@@ -29,6 +30,7 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
               <Ustrd>Nachzahlung</Ustrd>
             </RmtInf>
             <RltdPties>
+              <Dbtr><Nm>Erika Musterfrau</Nm></Dbtr>
               <DbtrAcct><Id><IBAN>DE98765432109876543210</IBAN></Id></DbtrAcct>
             </RltdPties>
           </TxDtls>
@@ -39,23 +41,25 @@ const xml = `<?xml version="1.0" encoding="UTF-8"?>
 </Document>`;
 
 describe("parseCamt053", () => {
-  it("parst Abflüsse (DBIT) als negative Beträge mit Kreditor-IBAN als Gegenkonto", () => {
+  it("parst Abflüsse (DBIT) als negative Beträge mit Kreditor-IBAN/-Name als Gegenpartei", () => {
     const rows = parseCamt053(xml);
     expect(rows[0]).toEqual({
       bookingDate: "2026-03-05",
       amount: -92000,
       purpose: "Reparatur Dachrinne",
       counterpartyIban: "DE12345678901234567890",
+      counterpartyName: "Dachdecker Schmidt GmbH",
     });
   });
 
-  it("parst Zuflüsse (CRDT) als positive Beträge mit Debitor-IBAN als Gegenkonto, mehrere Ustrd zusammengefügt", () => {
+  it("parst Zuflüsse (CRDT) als positive Beträge mit Debitor-IBAN/-Name als Gegenpartei, mehrere Ustrd zusammengefügt", () => {
     const rows = parseCamt053(xml);
     expect(rows[1]).toEqual({
       bookingDate: "2026-03-10",
       amount: 125000,
       purpose: "Hausgeld W01 Nachzahlung",
       counterpartyIban: "DE98765432109876543210",
+      counterpartyName: "Erika Musterfrau",
     });
   });
 
