@@ -3,7 +3,7 @@ import { withAuth, unauthorized } from "@/lib/supabase/api";
 
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 
-// POST /api/dictations/transcribe — Audio → Akturio Transscribe v2 → Rohtext
+// POST /api/dictations/transcribe — Audio → Berko AI Transscribe v2 → Rohtext
 export async function POST(request: NextRequest) {
   const { user } = await withAuth();
   if (!user) return unauthorized();

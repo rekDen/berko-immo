@@ -87,9 +87,9 @@ export const legalQA: LegalQA[] = [
 ];
 
 export const firmInfo = {
-  name: "Daniel Tauscher",
+  name: "Denis Berkovich",
   user: {
-    name: "Daniel Tauscher",
+    name: "Denis Berkovich",
     title: "Inhaber",
     initials: "GW",
   },

@@ -2,7 +2,7 @@
 /**
  * send-emails.js
  *
- * Versendet 50 realistische Hausverwaltungs-E-Mails an daniel.tauscher@akturio.com.
+ * Versendet 50 realistische Hausverwaltungs-E-Mails an daniel.tauscher@berko.ai.
  * Die E-Mails sind gleichmäßig auf 11 Kategorien verteilt:
  *   6 Kategorien mit 5 Mails + 5 Kategorien mit 4 Mails = 50
  *
@@ -16,7 +16,7 @@
  *   SMTP_USER       SMTP-Benutzername
  *   SMTP_PASS       SMTP-Passwort / App-Passwort
  *   SMTP_FROM       Absenderadresse, z.B. "Hausverwaltung <noreply@example.com>"
- *   SMTP_TO         (optional) Standard: daniel.tauscher@akturio.com
+ *   SMTP_TO         (optional) Standard: daniel.tauscher@berko.ai
  *   SEND_DELAY_MS   (optional) Verzögerung zwischen Mails, Default 1500
  *   DRY_RUN         "true" => keine Mails versenden, nur Vorschau ausgeben
  *
@@ -31,10 +31,10 @@ const CONFIG = {
   host: process.env.SMTP_HOST || 'smtp.ionos.de',
   port: parseInt(process.env.SMTP_PORT || '587', 10),
   secure: (process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
-  user: process.env.SMTP_USER || 'demo@akturio.com',
+  user: process.env.SMTP_USER || 'demo@berko.ai',
   pass: process.env.SMTP_PASS || 'm7WjQ.P8eyad@',
-  from: process.env.SMTP_FROM || process.env.SMTP_USER || "demo@akturio.com",
-  to: process.env.SMTP_TO || 'daniel.tauscher@akturio.com',
+  from: process.env.SMTP_FROM || process.env.SMTP_USER || "demo@berko.ai",
+  to: process.env.SMTP_TO || 'daniel.tauscher@berko.ai',
   delayMs: parseInt(process.env.SEND_DELAY_MS || '1500', 10),
   dryRun: (process.env.DRY_RUN || 'false').toLowerCase() === 'true',
 };
@@ -872,7 +872,7 @@ Agenda:
 1. Status laufende Projekte (jeder kurz)
 2. Neue Objekte in Aufnahme
 3. Engpässe / Eskalationen
-4. Schulungsbedarf Akturio (neue Software)
+4. Schulungsbedarf Berko AI (neue Software)
 5. Urlaubsplanung Sommer
 6. Verschiedenes
 
@@ -901,11 +901,11 @@ Berkovich`,
   },
   {
     category: 'Intern',
-    subject: 'Akturio-Schulung Termine - Anmeldung',
+    subject: 'Berko AI-Schulung Termine - Anmeldung',
     body:
 `Hallo Daniel,
 
-die Schulung zur neuen Akturio-Software (unser zukünftiges Verwalter-Tool) ist
+die Schulung zur neuen Berko AI-Software (unser zukünftiges Verwalter-Tool) ist
 terminiert:
 
 - Modul 1: Stammdaten & Objekte - 20.05., 14-17 Uhr

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { firmInfo } from "@/lib/data";
 import {
   LayoutDashboard,
   Mail,
@@ -19,6 +18,7 @@ import {
   FolderTree,
   PhoneCall,
   LogOut,
+  Settings,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -47,6 +47,25 @@ export default function Sidebar() {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [profile, setProfile] = useState<{ name: string; firm_name: string | null; initials: string | null }>({
+    name: "",
+    firm_name: null,
+    initials: null,
+  });
+
+  useEffect(() => {
+    async function fetchProfile() {
+      const res = await fetch("/api/profile");
+      if (!res.ok) return;
+      const data = await res.json();
+      setProfile({
+        name: data.name ?? data.email ?? "",
+        firm_name: data.firm_name ?? null,
+        initials: data.initials ?? null,
+      });
+    }
+    fetchProfile();
+  }, []);
 
   useEffect(() => {
     async function fetchUnread() {
@@ -145,18 +164,33 @@ export default function Sidebar() {
       {/* User section */}
       <div className="p-4 border-t border-gray-200 dark:border-gray-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-sm font-bold flex-shrink-0 text-white">
-            {firmInfo.user.initials}
-          </div>
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {firmInfo.user.name}
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
-                {firmInfo.user.title}
-              </p>
+          <Link
+            href="/einstellungen"
+            className="flex items-center gap-3 flex-1 min-w-0 group"
+            title="Einstellungen"
+          >
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-sm font-bold flex-shrink-0 text-white">
+              {profile.initials || "?"}
             </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:underline">
+                  {profile.name}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-500 truncate">
+                  {profile.firm_name}
+                </p>
+              </div>
+            )}
+          </Link>
+          {!collapsed && (
+            <Link
+              href="/einstellungen"
+              className="p-1.5 transition-colors flex-shrink-0 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white"
+              title="Einstellungen"
+            >
+              <Settings className="w-4 h-4" />
+            </Link>
           )}
           <button
             onClick={handleLogout}

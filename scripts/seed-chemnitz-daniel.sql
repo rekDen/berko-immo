@@ -1,5 +1,5 @@
 -- ============================================================
--- DEMO-DATEN: Hausverwaltung Chemnitz für daniel.tauscher@akturio.com
+-- DEMO-DATEN: Hausverwaltung Chemnitz für daniel.tauscher@berko.ai
 -- ============================================================
 -- Identische Daten wie seed-chemnitz.sql, aber mit eigenen UUIDs
 -- und automatischer Verknüpfung zum User b8da1bcf-9ab8-4546-8d85-e1eaffd49e43

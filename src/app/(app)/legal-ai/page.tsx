@@ -19,16 +19,16 @@ import { ChatMessage } from "@/types";
 const KNOWLEDGE_BADGES = ["BGB", "WEG", "DSGVO", "DIN", "VDI", "VDIV", "Heizkostenverordnung", "Betriebskostenverordnung"];
 
 const QUICK_ACTIONS = [
-  { label: "Schreiben & Dokumente", keyword: "Frage die Akturio KI welches Dokument, Schreiben, Mieterhöhung, Abmahnung, Kündigung, Übergabeprotokoll, NK-Abrechnung, WEG-Einladung Akturio erstellen soll – professionelles Schreiben in Sekunden, mit Paragraphenangabe und Fristen." },
-  { label: "Fristen & Pflichten prüfen", keyword: "Frage die Akturio KI welches welche Fristen in meinem Fall gelten? Ankündigungsfristen, NK-Abrechnungsfristen, TÜV-Termine, Schornsteinfeger, DSGVO-Auskunftsfristen – sofort strukturiert und vollständig." },
-  { label: "Rendite & Kaufpreis", keyword: "Frage die Akturio KI nach dem Kaufpreisfaktor, Brutto- und Nettomietrendite, Instandhaltungsrücklage nach II. BV, Cashflow-Analyse, AfA-Berechnung – schnelle Entscheidungsgrundlage für Ankauf oder Beratung." },
-  { label: "Schadensfall & Technik", keyword: "Frage die Akturio KI was bei Wasserschaden, Schimmel, Heizungsausfall, Sofortmaßnahmen, Dienstleisterauftrag, Versicherungsmeldung, Mieterrechte (Mietminderung), DIN/VDI-konforme Vorgehensweise zu machen ist." },
+  { label: "Schreiben & Dokumente", keyword: "Frage die Berko AI KI welches Dokument, Schreiben, Mieterhöhung, Abmahnung, Kündigung, Übergabeprotokoll, NK-Abrechnung, WEG-Einladung Berko AI erstellen soll – professionelles Schreiben in Sekunden, mit Paragraphenangabe und Fristen." },
+  { label: "Fristen & Pflichten prüfen", keyword: "Frage die Berko AI KI welches welche Fristen in meinem Fall gelten? Ankündigungsfristen, NK-Abrechnungsfristen, TÜV-Termine, Schornsteinfeger, DSGVO-Auskunftsfristen – sofort strukturiert und vollständig." },
+  { label: "Rendite & Kaufpreis", keyword: "Frage die Berko AI KI nach dem Kaufpreisfaktor, Brutto- und Nettomietrendite, Instandhaltungsrücklage nach II. BV, Cashflow-Analyse, AfA-Berechnung – schnelle Entscheidungsgrundlage für Ankauf oder Beratung." },
+  { label: "Schadensfall & Technik", keyword: "Frage die Berko AI KI was bei Wasserschaden, Schimmel, Heizungsausfall, Sofortmaßnahmen, Dienstleisterauftrag, Versicherungsmeldung, Mieterrechte (Mietminderung), DIN/VDI-konforme Vorgehensweise zu machen ist." },
 ];
 
 const SYSTEM_MESSAGE: ChatMessage = {
   role: "system",
   content:
-    "Ich bin Akturio, Ihre Recherche-KI für deutsches Recht. Ich habe Zugriff auf BGB, ZPO, StGB, KSchG und FamFG — stets mit verlinkten Quellenangaben. Wie kann ich Ihnen helfen?",
+    "Ich bin Berko AI, Ihre Recherche-KI für deutsches Recht. Ich habe Zugriff auf BGB, ZPO, StGB, KSchG und FamFG — stets mit verlinkten Quellenangaben. Wie kann ich Ihnen helfen?",
 };
 
 /* ------------------------------------------------------------------ */
@@ -311,7 +311,7 @@ export default function LegalAIPage() {
               </div>
               <div>
                 <h1 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">
-                  Akturio Immo-KI
+                  Berko AI Immo-KI
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Dein digitaler HV-Berater
@@ -451,7 +451,7 @@ export default function LegalAIPage() {
             </button>
           </div>
           <p className="mt-2 text-center text-xs text-gray-400 dark:text-gray-600">
-            Akturio ersetzt keine individuelle Rechtsberatung durch einen
+            Berko AI ersetzt keine individuelle Rechtsberatung durch einen
             Fachanwalt.
           </p>
         </div>

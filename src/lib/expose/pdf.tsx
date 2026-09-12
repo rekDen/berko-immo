@@ -191,7 +191,7 @@ export function ExposePDF({ content, images, type, price }: Props) {
     : "";
 
   return (
-    <Document title={content.titel} producer="Akturio">
+    <Document title={content.titel} producer="Berko AI">
 
       {/* ── SEITE 1: TITELSEITE ───────────────────────────────────────────── */}
       <Page size="A4" style={s.page}>

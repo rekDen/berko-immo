@@ -1,4 +1,4 @@
-# Akturio – Architektur & Konventionen (Master-Referenz)
+# Berko AI – Architektur & Konventionen (Master-Referenz)
 
 ## Zweck dieses Dokuments
 Dieser Prompt ist die **gemeinsame Grundlage** für alle Modul-Prompts 
@@ -17,7 +17,7 @@ und erweitert es nur, statt es zu wiederholen.
 
 ## Produkt-Kontext
 
-**Akturio** ist eine SaaS-Plattform für deutsche Hausverwaltungen 
+**Berko AI** ist eine SaaS-Plattform für deutsche Hausverwaltungen 
 (WEG, Mietverwaltung, Sondereigentum). Zielgruppe sind Verwalter mit 
 50–500 Einheiten. Wettbewerber: HausPerfekt PRO, Karthago, Domus, 
 Immoware24. USP: moderne UX, mehrsprachig (DE/EN/RU), 
@@ -39,7 +39,7 @@ Vorgangs-Portal, niemals das volle CRM.
 ## Multi-Tenancy & RLS-Patterns (kritisch)
 
 ### Mandantenfähigkeit
-Akturio ist Multi-Tenant: ein Verwaltungsunternehmen = ein `tenant`. 
+Berko AI ist Multi-Tenant: ein Verwaltungsunternehmen = ein `tenant`. 
 Jeder Verwalter-User gehört zu genau einem Tenant. Sekundär-User 
 (Eigentümer/Mieter) gehören zu **keinem** Tenant, sind aber via 
 `contact_roles` mit Objekten/Einheiten/Verträgen eines Tenants 
@@ -425,7 +425,7 @@ const { data, error } = await supabase
 - **Eigene Auth** – Supabase Auth, später ggf. SSO über Supabase
 - **Eigene File-Storage** – Supabase Storage, kein S3 direkt
 - **Server-Side-Rendering** – SPA reicht (interne App, kein SEO-Bedarf)
-- **Eigene Design-System-Library** – shadcn/ui mit Akturio-Tokens
+- **Eigene Design-System-Library** – shadcn/ui mit Berko AI-Tokens
 - **Über-Engineering von Mehrsprachigkeit** – DE ist Primärsprache, 
   EN/RU sind Add-On
 

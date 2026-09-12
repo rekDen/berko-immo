@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
 
-// POST /api/dictations/format — Rohtext → Akturio Validator → Formatierter Text
+// POST /api/dictations/format — Rohtext → Berko AI Validator → Formatierter Text
 export async function POST(request: NextRequest) {
   const { user } = await withAuth();
   if (!user) return unauthorized();

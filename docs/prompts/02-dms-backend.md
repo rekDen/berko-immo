@@ -1,7 +1,7 @@
 # Aufgabe: Dokumentenmanagement-Modul für Hausverwaltung (Supabase/Postgres)
 
 ## Kontext
-Wir bauen ein DMS-Modul für Akturio – eine SaaS-Plattform für deutsche 
+Wir bauen ein DMS-Modul für Berko AI – eine SaaS-Plattform für deutsche 
 Hausverwaltungen (WEG, MV, SE). Das Modul ergänzt das bereits 
 bestehende CRM-Modul (contacts, properties, units, contact_roles, 
 contracts). Datenbank ist Supabase (Postgres 15+) mit RLS, Storage über 
@@ -139,7 +139,7 @@ Versammlungsvorbereitung) erhält jedes Dokument ein
 
 ### 8. Verwalter-Übergabe (Objektübergabe)
 Funktion zur kompletten Übergabe eines Objekts an einen 
-Nachverwalter (anderer Mandant in Akturio). Alle Dokumente, 
+Nachverwalter (anderer Mandant in Berko AI). Alle Dokumente, 
 Kategorien-Marker, Verträge bleiben erhalten – nur `tenant_id` 
 ändert sich. Audit-Log zwingend.
 

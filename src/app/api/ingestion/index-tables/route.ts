@@ -76,7 +76,7 @@ export async function POST() {
 
         let totalChunks = 0;
         let done = 0;
-        const results: { table: string; rows: number; chunks: number }[] = [];
+        const results: { table: string; rows: number; chunks: number; error: string | null }[] = [];
 
         for (const t of processable) {
           // Zeilen lesen (max 5000 pro Tabelle)
@@ -188,28 +188,45 @@ export async function POST() {
             });
           }
 
+          let tableError: string | null = null;
+
           if (chunks.length) {
             // Embeddings für alle Chunks dieser Tabelle erzeugen (semantische Suche)
             const vectors = await embedTexts(chunks.map((c) => c.content));
             chunks.forEach((c, i) => { c.embedding = vectors[i]; });
 
-            // Batch-Insert in Blöcken à 200
+            // Batch-Insert in Blöcken à 200 — Fehler NICHT verschlucken, sonst werden
+            // Dokumente fälschlich als "indexed" markiert, obwohl gar keine Chunks
+            // gespeichert wurden (führte zu leeren Suchergebnissen ohne sichtbaren Fehler).
+            let insertedCount = 0;
             for (let i = 0; i < chunks.length; i += 200) {
-              await admin.from("ingest_chunks").insert(chunks.slice(i, i + 200));
+              const batch = chunks.slice(i, i + 200);
+              const { error: insErr } = await admin.from("ingest_chunks").insert(batch);
+              if (insErr) {
+                tableError = insErr.message;
+                break;
+              }
+              insertedCount += batch.length;
             }
-            totalChunks += chunks.length;
+            totalChunks += insertedCount;
 
-            // Alle betroffenen Dokumente dieser Tabelle auf "indexed" setzen
             const docIds = [...new Set(chunks.map((c) => c.document_id))];
-            await admin
-              .from("ingest_documents")
-              .update({ status: "indexed" })
-              .in("id", docIds);
+            if (tableError) {
+              await admin
+                .from("ingest_documents")
+                .update({ status: "failed", error_message: tableError })
+                .in("id", docIds);
+            } else {
+              await admin
+                .from("ingest_documents")
+                .update({ status: "indexed" })
+                .in("id", docIds);
+            }
           }
 
           done++;
-          results.push({ table: t.table_name, rows: rows.length, chunks: chunks.length });
-          send({ type: "table", table: t.table_name, rows: rows.length, chunks: chunks.length, done, total });
+          results.push({ table: t.table_name, rows: rows.length, chunks: chunks.length, error: tableError });
+          send({ type: "table", table: t.table_name, rows: rows.length, chunks: chunks.length, done, total, error: tableError });
         }
 
         // Quelle als synchronisiert markieren

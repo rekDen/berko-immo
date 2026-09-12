@@ -19,7 +19,7 @@ Die UI passt sich rollenabhängig an, ist aber **dieselbe Codebasis**.
 
 ## Designvorgaben
 
-### Visuelle Sprache (an Akturio anlehnen)
+### Visuelle Sprache (an Berko AI anlehnen)
 - Akzentfarbe **Orange** (`#F39200` oder ähnlich – in 
   `tailwind.config.ts` als `primary` definiert) für aktive Tabs, 
   Counter, primäre CTAs
@@ -32,7 +32,7 @@ Die UI passt sich rollenabhängig an, ist aber **dieselbe Codebasis**.
 
 ### Reduktion, nicht Verspielung
 Kein Glassmorphism, keine Gradients, keine Schatten-Spielereien. 
-Akturio-Zielgruppe sind Hausverwalter zwischen 35 und 65 – die 
+Berko AI-Zielgruppe sind Hausverwalter zwischen 35 und 65 – die 
 brauchen Klarheit, nicht Style. **Funktional über dekorativ.**
 
 ## Routing-Struktur

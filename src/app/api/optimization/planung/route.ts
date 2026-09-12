@@ -4,7 +4,7 @@ import { badRequest, unauthorized, withAuth } from "@/lib/supabase/api";
 
 const anthropic = new Anthropic();
 
-const SYSTEM = `Du bist Akturio, ein spezialisierter Immobilien-Planungsberater.
+const SYSTEM = `Du bist Berko AI, ein spezialisierter Immobilien-Planungsberater.
 Du hilfst dabei, eine konkrete Value-Add-Maßnahme für ein Objekt wirtschaftlich durchzudenken.
 Führe ein strukturiertes Gespräch zu diesen vier Aspekten — frage aktiv nach, wenn Zahlen fehlen:
 1. Investitionskosten (€ gesamt inkl. Nebenkosten, Planung, Reserve)

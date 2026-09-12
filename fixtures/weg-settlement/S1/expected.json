@@ -1,0 +1,122 @@
+{
+  "engineVersion": "weg-settlement@0.1.0",
+  "propertyId": "fixture-s1",
+  "year": 2026,
+  "costTypeBreakdowns": [
+    {
+      "costTypeId": "hausmeister",
+      "direction": "expense",
+      "total": 10000,
+      "allocationKeyId": "mea",
+      "keyTotalWeight": 1000,
+      "perUnit": [
+        { "unitId": "a", "weight": 250, "exactShare": 2500, "amount": 2500 },
+        { "unitId": "b", "weight": 250, "exactShare": 2500, "amount": 2500 },
+        { "unitId": "c", "weight": 300, "exactShare": 3000, "amount": 3000 },
+        { "unitId": "d", "weight": 200, "exactShare": 2000, "amount": 2000 }
+      ],
+      "blockedZeroWeight": false,
+      "directChargeErrors": []
+    },
+    {
+      "costTypeId": "versicherung",
+      "direction": "expense",
+      "total": 5000,
+      "allocationKeyId": "mea",
+      "keyTotalWeight": 1000,
+      "perUnit": [
+        { "unitId": "a", "weight": 250, "exactShare": 1250, "amount": 1250 },
+        { "unitId": "b", "weight": 250, "exactShare": 1250, "amount": 1250 },
+        { "unitId": "c", "weight": 300, "exactShare": 1500, "amount": 1500 },
+        { "unitId": "d", "weight": 200, "exactShare": 1000, "amount": 1000 }
+      ],
+      "blockedZeroWeight": false,
+      "directChargeErrors": []
+    },
+    {
+      "costTypeId": "verwaltung",
+      "direction": "expense",
+      "total": 4000,
+      "allocationKeyId": "unitcount",
+      "keyTotalWeight": 4,
+      "perUnit": [
+        { "unitId": "a", "weight": 1, "exactShare": 1000, "amount": 1000 },
+        { "unitId": "b", "weight": 1, "exactShare": 1000, "amount": 1000 },
+        { "unitId": "c", "weight": 1, "exactShare": 1000, "amount": 1000 },
+        { "unitId": "d", "weight": 1, "exactShare": 1000, "amount": 1000 }
+      ],
+      "blockedZeroWeight": false,
+      "directChargeErrors": []
+    },
+    {
+      "costTypeId": "zinsen",
+      "direction": "income",
+      "total": 1000,
+      "allocationKeyId": "mea",
+      "keyTotalWeight": 1000,
+      "perUnit": [
+        { "unitId": "a", "weight": 250, "exactShare": 250, "amount": 250 },
+        { "unitId": "b", "weight": 250, "exactShare": 250, "amount": 250 },
+        { "unitId": "c", "weight": 300, "exactShare": 300, "amount": 300 },
+        { "unitId": "d", "weight": 200, "exactShare": 200, "amount": 200 }
+      ],
+      "blockedZeroWeight": false,
+      "directChargeErrors": []
+    }
+  ],
+  "heatingReconciliations": [],
+  "units": [
+    {
+      "unitId": "a", "costs": 4750, "income": 250, "result": 4500, "advancesSoll": 4000, "balance": 500,
+      "info": {
+        "openAdvances": 0, "openSpecialLevies": 0, "par35a": [],
+        "apportionable": [{ "betrkvNo": 14, "amount": 2500 }, { "betrkvNo": 13, "amount": 1250 }],
+        "nonApportionable": 1000, "co2": []
+      }
+    },
+    {
+      "unitId": "b", "costs": 4750, "income": 250, "result": 4500, "advancesSoll": 4000, "balance": 500,
+      "info": {
+        "openAdvances": 0, "openSpecialLevies": 0, "par35a": [],
+        "apportionable": [{ "betrkvNo": 14, "amount": 2500 }, { "betrkvNo": 13, "amount": 1250 }],
+        "nonApportionable": 1000, "co2": []
+      }
+    },
+    {
+      "unitId": "c", "costs": 5500, "income": 300, "result": 5200, "advancesSoll": 5000, "balance": 200,
+      "info": {
+        "openAdvances": 0, "openSpecialLevies": 0, "par35a": [],
+        "apportionable": [{ "betrkvNo": 14, "amount": 3000 }, { "betrkvNo": 13, "amount": 1500 }],
+        "nonApportionable": 1000, "co2": []
+      }
+    },
+    {
+      "unitId": "d", "costs": 4000, "income": 200, "result": 3800, "advancesSoll": 3500, "balance": 300,
+      "info": {
+        "openAdvances": 0, "openSpecialLevies": 0, "par35a": [],
+        "apportionable": [{ "betrkvNo": 14, "amount": 2000 }, { "betrkvNo": 13, "amount": 1000 }],
+        "nonApportionable": 1000, "co2": []
+      }
+    }
+  ],
+  "bankReconciliations": [
+    { "bankAccountId": "bank-op", "openingBalance": 100000, "totalIn": 20000, "totalOut": 19000, "computedClosing": 101000, "confirmedClosing": 101000, "matches": true }
+  ],
+  "reserveDevelopments": [],
+  "assetReport": {
+    "bankBalances": [{ "bankAccountId": "bank-op", "kind": "operating", "balance": 101000 }],
+    "reserves": [],
+    "receivablesTotal": 0,
+    "liabilities": [],
+    "otherAssets": []
+  },
+  "specialLevies": [],
+  "overall": {
+    "advancePaymentsIst": 16500,
+    "specialLevyPaymentsIst": 0,
+    "otherIncomeTotal": 1000,
+    "expenseTotal": 19000,
+    "internalTransfersNet": 0,
+    "priorYearSettlementPayments": 0
+  }
+}

@@ -1,5 +1,5 @@
 /**
- * Seed-Script: Realistische Testdaten für Kanzleisoftware Akturio
+ * Seed-Script: Realistische Testdaten für Kanzleisoftware Berko AI
  * Erstellt Fristen, Termine und Diktate.
  *
  * Ausführen: npx tsx scripts/seed-testdata.ts

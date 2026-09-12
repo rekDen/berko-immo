@@ -10,6 +10,8 @@ const tabs = [
   { label: "Vorgänge", suffix: "/vorgaenge" },
   { label: "Termine", suffix: "/termine" },
   { label: "Kommunikation", suffix: "/kommunikation" },
+  { label: "Buchhaltung", suffix: "/buchhaltung" },
+  { label: "Jahresabrechnung", suffix: "/abrechnung" },
   { label: "FAQs", suffix: "/faqs", disabled: true },
 ];
 

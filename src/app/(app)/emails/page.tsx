@@ -210,10 +210,10 @@ function SetupDialog({
   onSaved: () => void;
 }) {
   const [form, setForm] = useState({
-    email: "daniel.tauscher@akturio.com",
+    email: "daniel.tauscher@berko.ai",
     imap_host: "imap.ionos.de",
     imap_port: "993",
-    imap_user: "daniel.tauscher@akturio.com",
+    imap_user: "daniel.tauscher@berko.ai",
     imap_password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -1804,7 +1804,7 @@ export default function EmailsPage() {
                         <button
                           onClick={handleLegalAssess}
                           disabled={legalizing}
-                          title="Rechtliche Bewertung durch Akturio erstellen"
+                          title="Rechtliche Bewertung durch Berko AI erstellen"
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors
                             border border-amber-300 text-amber-600 hover:border-amber-400/50 hover:bg-amber-50
                             dark:border-amber-500/40 dark:text-amber-400 dark:hover:border-amber-500/50 dark:hover:bg-amber-500/10
@@ -1872,7 +1872,7 @@ export default function EmailsPage() {
                           <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
                         )}
                         <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                          Akturio KI-Zusammenfassung
+                          Berko AI KI-Zusammenfassung
                         </span>
                       </div>
                       {summarizing ? (
@@ -1915,10 +1915,10 @@ export default function EmailsPage() {
                           <Scale className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0" />
                         )}
                         <span className="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                          Akturio Rechtliche Bewertung
+                          Berko AI Rechtliche Bewertung
                         </span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-600 border border-amber-200 dark:bg-amber-500/15 dark:text-amber-400 dark:border-amber-500/30 flex-shrink-0">
-                          Akturio
+                          Berko AI
                         </span>
                         <span className="ml-1 flex-shrink-0">
                           {legalExpanded
@@ -1970,7 +1970,7 @@ export default function EmailsPage() {
                               />
                             ))}
                             <p className="text-xs text-amber-500 dark:text-amber-400 pt-1">
-                              Akturio analysiert den Sachverhalt...
+                              Berko AI analysiert den Sachverhalt...
                             </p>
                           </div>
                         ) : selectedEmail.aiLegal ? (
@@ -2147,7 +2147,7 @@ export default function EmailsPage() {
                       <div className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-cyan-500 dark:text-cyan-400" />
                         <span className="text-sm font-semibold text-cyan-600 dark:text-cyan-400">
-                          Akturio Antwort-Entwurf
+                          Berko AI Antwort-Entwurf
                         </span>
                       </div>
                       {draftExpanded ? (

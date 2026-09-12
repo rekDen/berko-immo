@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Akturio — KI-Assistent für Hausverwaltungen",
+  title: "Berko AI — KI-Assistent für Hausverwaltungen",
   description: "KI-gestützte Hausverwaltung-Management-Software",
 };
 

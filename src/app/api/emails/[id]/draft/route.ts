@@ -4,7 +4,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
 
-// POST /api/emails/:id/draft — KI-Antwort via Akturio Validator generieren
+// POST /api/emails/:id/draft — KI-Antwort via Berko AI Validator generieren
 export async function POST(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

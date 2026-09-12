@@ -133,6 +133,7 @@ function SupabaseDbPanel() {
     setSyncing(true);
     setProgress({ done: 0, total: 0, table: null, chunks: 0, error: null });
     let totalChunks = 0;
+    const tableErrors: string[] = [];
     try {
       const res = await fetch("/api/ingestion/index-tables", { method: "POST" });
       if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
@@ -157,7 +158,11 @@ function SupabaseDbPanel() {
             setProgress({ done: 0, total: ev.total, table: null, chunks: 0, error: null });
           } else if (ev.type === "table") {
             totalChunks += ev.chunks ?? 0;
-            setProgress({ done: ev.done, total: ev.total, table: ev.table, chunks: totalChunks, error: null });
+            if (ev.error) tableErrors.push(`${ev.table}: ${ev.error}`);
+            setProgress({
+              done: ev.done, total: ev.total, table: ev.table, chunks: totalChunks,
+              error: tableErrors.length ? tableErrors.join("; ") : null,
+            });
           } else if (ev.type === "done") {
             setProgress((p) => p ? { ...p, done: p.total, table: null, chunks: ev.totalChunks ?? totalChunks } : p);
           } else if (ev.type === "error") {
@@ -838,7 +843,7 @@ function SearchScanAnimation() {
         </div>
         <div className="min-w-0">
           <p className="text-base font-semibold text-gray-900 dark:text-white">
-            Akturio durchsucht deinen Wissensbestand
+            Berko AI durchsucht deinen Wissensbestand
           </p>
           <p className="text-sm text-indigo-600 dark:text-indigo-300 flex items-center">
             {finalizing ? "Ergebnisse werden zusammengestellt" : `Durchsuche ${current.label}`}

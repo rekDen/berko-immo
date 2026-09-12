@@ -1,7 +1,7 @@
 ## Multi-Tenancy & RLS-Patterns (kritisch)
 
 ### Mandantenfähigkeit
-Akturio ist Multi-Tenant: ein Verwaltungsunternehmen = ein `tenant`. 
+Berko AI ist Multi-Tenant: ein Verwaltungsunternehmen = ein `tenant`. 
 Jeder Verwalter-User gehört zu genau einem Tenant. Sekundär-User 
 (Eigentümer/Mieter) gehören zu **keinem** Tenant, sind aber via 
 `contact_roles` mit Objekten/Einheiten/Verträgen eines Tenants 

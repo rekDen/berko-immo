@@ -1,8 +1,8 @@
-# Spezifikation: Akturio-Modul „Dokumente"
+# Spezifikation: Berko AI-Modul „Dokumente"
 
 **Version:** 1.0 (Entwurf)
 **Stand:** Juli 2026
-**Kontext:** Akturio (Supabase / Next.js), Supabase Storage. Eigenständige Dateiablage.
+**Kontext:** Berko AI (Supabase / Next.js), Supabase Storage. Eigenständige Dateiablage.
 
 ---
 
@@ -55,7 +55,7 @@ einem selbst angelegten Ordnerbaum — vergleichbar mit einer Cloud-Dateiablage
    `null` = Wurzel).
 
 4. **Multi-Tenant via Supabase RLS.** Alles ist über `tenant_id` isoliert,
-   analog zum bestehenden Akturio-Schema (`current_tenant_id()`,
+   analog zum bestehenden Berko AI-Schema (`current_tenant_id()`,
    `is_tenant_admin()`).
 
 5. **Soft-Delete.** Löschen setzt `deleted_at`; die physische Storage-Bereinigung
@@ -341,7 +341,9 @@ Abfrage oder Baum-Prüfung im Handler). Verstoß → `400`.
 - **Soft-Delete** setzt `deleted_at` / `deleted_by`. Bei Ordnern rekursiv auf
   Unterordner und enthaltene Dateien anwenden (rekursive Query oder Trigger).
 - Gelöschte Objekte verschwinden aus allen Standard-Queries (RLS `deleted_at is null`).
-- **Storage-Bereinigung** asynchron: )
+- **Storage-Bereinigung** asynchron: Job/Cron entfernt Storage-Objekte zu Dateien,
+  die länger als X Tage soft-deleted sind, und hard-deleted anschließend die
+  Datensätze. (Papierkorb-UI ist v2.)
 
 ---
 

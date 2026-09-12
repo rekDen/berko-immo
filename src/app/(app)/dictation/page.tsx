@@ -371,7 +371,7 @@ export default function DictationPage() {
             {recordingState === "idle" && "Klicken zum Starten der Aufnahme"}
             {recordingState === "recording" && <span className="text-red-500 font-medium animate-pulse">Aufnahme läuft… Klicken zum Stoppen</span>}
             {isProcessing && <span className="text-indigo-600 dark:text-indigo-300">
-              {processingStep === "transcribe" ? "Transkribiere mit Akturio Scribe…" : "Akturio formatiert…"}
+              {processingStep === "transcribe" ? "Transkribiere mit Berko AI Scribe…" : "Berko AI formatiert…"}
             </span>}
             {recordingState === "done" && <button onClick={handleReset} className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline underline-offset-2 transition-colors">Neue Aufnahme starten</button>}
             {recordingState === "error" && <span className="flex items-center gap-2 text-red-500"><AlertCircle className="w-4 h-4 flex-shrink-0" />{errorMsg}</span>}
@@ -390,7 +390,7 @@ export default function DictationPage() {
               <div className="rounded-2xl p-6 border bg-white border-gray-200 dark:bg-gray-900 dark:border-gray-800">
                 <h2 className="text-xs font-semibold uppercase tracking-wider mb-4 text-gray-400 dark:text-gray-500 flex items-center gap-2">
                   Rohtranskription
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 normal-case tracking-normal">Akturio Scribe</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400 normal-case tracking-normal">Berko AI Scribe</span>
                 </h2>
                 <p className="text-sm leading-relaxed font-mono text-gray-600 dark:text-gray-300">{rawText}</p>
               </div>
@@ -398,7 +398,7 @@ export default function DictationPage() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">KI-formatiert</h2>
                   <span className="inline-flex items-center gap-1 text-xs bg-cyan-500/10 border border-cyan-500/20 rounded-full px-2 py-0.5 text-cyan-600 dark:text-cyan-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 inline-block" /> Akturio
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 inline-block" /> Berko AI
                   </span>
                 </div>
                 <p className="text-sm leading-relaxed whitespace-pre-line text-gray-900 dark:text-white">{formattedText}</p>

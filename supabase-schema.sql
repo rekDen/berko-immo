@@ -1,5 +1,5 @@
 -- ============================================================
--- Akturio – Hausverwaltung SaaS
+-- Berko AI – Hausverwaltung SaaS
 -- Komplettes Datenbankschema (Supabase / Postgres 15+)
 -- Multi-Tenant, CRM, DMS, Audit, RLS
 -- ============================================================
@@ -76,9 +76,13 @@ create table profiles (
   role text not null default 'tenant_user'
     check (role in ('tenant_admin', 'tenant_user', 'external')),
   name text not null,
+  first_name text,
+  last_name text,
   title text,
   initials text,
   firm_name text,
+  signature_html text,
+  signature_text text,
   language text not null default 'de' check (language in ('de', 'en', 'ru')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -1272,3 +1276,20 @@ do $$ begin
   alter publication supabase_realtime add table documents;
 exception when duplicate_object then null;
 end $$;
+
+-- ============================================================
+-- 34. MODUL WEG-BUCHHALTUNG
+-- ============================================================
+-- Kontenplan/doppelte Buchführung, Bankkonten der Gemeinschaft, Kostenarten,
+-- Verteilerschlüssel, Wirtschaftsplan, Sonderumlagen, Buchungen.
+-- Spezifikation: docs/specs/weg-buchhaltung-spec.md
+-- Vollständiges DDL (Tabellen + RLS) lebt in scripts/migration-weg-buchhaltung.sql
+-- und wird hier bewusst NICHT dupliziert, um Drift zwischen dieser Datei und
+-- der tatsächlich ausgeführten Migration zu vermeiden (diese Datei ist laut
+-- M0-Befund — docs/specs/hausgeldabrechnung-plan.md, Frage Q1 — ohnehin nicht
+-- durchgängig mit dem Live-Schema synchron; für dieses Modul gilt
+-- scripts/migration-weg-buchhaltung.sql als alleinige Quelle der Wahrheit).
+-- Neue Tabellen: accounts, allocation_keys, allocation_key_values, cost_types,
+-- community_bank_accounts, balance_confirmations, economic_plans,
+-- plan_advances, special_levies, special_levy_units, journal_entries,
+-- journal_entry_lines, bank_statement_imports, matching_rules, transactions.

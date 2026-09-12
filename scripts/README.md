@@ -1,6 +1,6 @@
 # Hausverwaltungs-E-Mail-Versand
 
-Versendet 50 realistische Hausverwaltungs-E-Mails an `daniel.tauscher@akturio.com`,
+Versendet 50 realistische Hausverwaltungs-E-Mails an `daniel.tauscher@berko.ai`,
 gleichmäßig verteilt auf 11 Kategorien.
 
 ## Verteilung (50 Mails auf 11 Kategorien)
@@ -42,7 +42,7 @@ export SMTP_PASS="dein-passwort-oder-app-password"
 export SMTP_FROM="Hausverwaltung Berkovich <absender@example.com>"
 
 # Optional:
-export SMTP_TO="daniel.tauscher@akturio.com"   # Default ist bereits gesetzt
+export SMTP_TO="daniel.tauscher@berko.ai"   # Default ist bereits gesetzt
 export SEND_DELAY_MS="1500"                    # Verzögerung zwischen Mails
 export DRY_RUN="false"                         # true = nur Vorschau
 ```
@@ -74,7 +74,7 @@ Das Script:
 3. loggt Erfolg/Fehler je Mail und gibt am Ende eine Zusammenfassung aus.
 
 Jede Betreffzeile beginnt mit `[Kategorie]`, damit sich die Mails in
-Akturio später einfach den Kategorien zuordnen lassen.
+Berko AI später einfach den Kategorien zuordnen lassen.
 
 ## Wichtig
 

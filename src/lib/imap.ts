@@ -9,6 +9,7 @@ import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import Anthropic from "@anthropic-ai/sdk";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getOrCreateTableSource, indexTableRow } from "@/lib/ingestion/index-row";
 
 // ─── Typen ─────────────────────────────────────────────────────────────────
 
@@ -79,6 +80,16 @@ export async function syncImapEmails(
 ): Promise<SyncResult> {
   const admin = createAdminClient();
   const result: SyncResult = { synced: 0, skipped: 0, errors: [] };
+
+  // Quelle für die semantische Indexierung einmalig sicherstellen, damit jede
+  // neu eingelesene E-Mail sofort vektorisiert und durchsuchbar wird.
+  // Schlägt dies fehl, darf der eigentliche E-Mail-Sync trotzdem weiterlaufen.
+  let sourceId: string | null = null;
+  try {
+    sourceId = await getOrCreateTableSource(admin, credentials.tenantId);
+  } catch (err) {
+    console.error("[Ingestion] Quelle konnte nicht angelegt werden:", err instanceof Error ? err.message : err);
+  }
 
   // Bereits synchronisierte UIDs laden (für Deduplizierung in O(1))
   const { data: existingRows } = await admin
@@ -154,33 +165,64 @@ export async function syncImapEmails(
           const trimmedBody = body.trim() || "(kein Inhalt)";
           const category = await categorizeEmail(subject, trimmedBody);
 
-          const { error: insertError } = await admin.from("emails").insert({
-            tenant_id: credentials.tenantId,
-            created_by: userId,
-            from_address: fromAddress,
-            from_name: fromName || fromAddress,
-            subject,
-            body: trimmedBody,
-            date: date.toISOString(),
-            category,
-            ai_categorized: true,
-            read: false,
-            starred: false,
-            ai_summary: "",
-            ai_draft: "",
-            imap_uid: msg.uid,
-            message_id: messageId,
-          });
+          const { data: insertedEmail, error: insertError } = await admin
+            .from("emails")
+            .insert({
+              tenant_id: credentials.tenantId,
+              created_by: userId,
+              from_address: fromAddress,
+              from_name: fromName || fromAddress,
+              subject,
+              body: trimmedBody,
+              date: date.toISOString(),
+              category,
+              ai_categorized: true,
+              read: false,
+              starred: false,
+              ai_summary: "",
+              ai_draft: "",
+              imap_uid: msg.uid,
+              message_id: messageId,
+            })
+            .select("id")
+            .single();
 
-          if (insertError) {
+          if (insertError || !insertedEmail) {
             // Duplikat-Fehler (message_id-Kollision) leise ignorieren
-            if (!insertError.message.includes("duplicate")) {
-              result.errors.push(`UID ${msg.uid}: ${insertError.message}`);
+            if (!insertError?.message.includes("duplicate")) {
+              result.errors.push(`UID ${msg.uid}: ${insertError?.message ?? "Insert fehlgeschlagen"}`);
             } else {
               result.skipped++;
             }
           } else {
             result.synced++;
+
+            // Sofort vektorisieren, damit die E-Mail direkt semantisch durchsuchbar ist.
+            if (sourceId) {
+              try {
+                await indexTableRow(
+                  admin,
+                  credentials.tenantId,
+                  sourceId,
+                  "emails",
+                  {
+                    id: insertedEmail.id,
+                    from_address: fromAddress,
+                    from_name: fromName || fromAddress,
+                    subject,
+                    body: trimmedBody,
+                    category,
+                  },
+                  ["from_address", "from_name", "subject", "body", "category"],
+                );
+              } catch (indexErr) {
+                console.error(
+                  "[Ingestion] Vektorisierung fehlgeschlagen für E-Mail",
+                  insertedEmail.id,
+                  indexErr instanceof Error ? indexErr.message : indexErr,
+                );
+              }
+            }
           }
         } catch (parseErr) {
           result.errors.push(

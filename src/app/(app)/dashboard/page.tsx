@@ -145,6 +145,8 @@ export default function DashboardPage() {
   const [emails, setEmails] = useState<DbEmail[]>([]);
   const [deadlines, setDeadlines] = useState<DbDeadline[]>([]);
   const [dictationsThisWeek, setDictationsThisWeek] = useState(0);
+  const [userName, setUserName] = useState("");
+  const [firmName, setFirmName] = useState("");
 
   const [briefing, setBriefing] = useState("");
   const [briefingLoading, setBriefingLoading] = useState(false);
@@ -153,10 +155,11 @@ export default function DashboardPage() {
   // ── Daten laden ────────────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
     setLoading(true);
-    const [emailRes, deadlineRes, dictRes] = await Promise.all([
+    const [emailRes, deadlineRes, dictRes, profileRes] = await Promise.all([
       fetch("/api/emails?folder=inbox"),
       fetch("/api/deadlines"),
       fetch("/api/dictations"),
+      fetch("/api/profile"),
     ]);
 
     const [emailData, deadlineData, dictData] = await Promise.all([
@@ -167,6 +170,12 @@ export default function DashboardPage() {
 
     setEmails(emailData);
     setDeadlines(deadlineData);
+
+    if (profileRes.ok) {
+      const profile: { name?: string; firm_name?: string | null } = await profileRes.json();
+      setUserName(profile.name ?? "");
+      setFirmName(profile.firm_name ?? "");
+    }
 
     const weekStart = startOfWeek();
     setDictationsThisWeek(dictData.filter((d: { created_at: string }) => new Date(d.created_at) >= weekStart).length);
@@ -246,7 +255,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             {getGreeting()},{" "}
-            <span className="text-indigo-600 dark:text-indigo-400">Daniel Tauscher</span>
+            <span className="text-indigo-600 dark:text-indigo-400">{userName || "…"}</span>
           </h1>
           <p className="text-sm mt-1 text-gray-500 dark:text-gray-500">{formatDate(today)}</p>
         </div>
@@ -263,7 +272,7 @@ export default function DashboardPage() {
           </button>
           <div className="flex items-center gap-2 text-sm rounded-xl px-4 py-2 bg-white border border-gray-200 text-gray-500 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-500">
             <Briefcase className="w-4 h-4 text-gray-400 dark:text-gray-600" />
-            <span>Hausverwaltung Daniel Tauscher</span>
+            <span>Hausverwaltung {firmName || userName}</span>
           </div>
         </div>
       </header>
@@ -398,7 +407,7 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Akturio KI-Briefing */}
+      {/* Berko AI KI-Briefing */}
       <section>
         <div className="relative rounded-2xl overflow-hidden">
           <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-indigo-600/40 via-cyan-500/20 to-violet-600/30 p-px">
@@ -410,13 +419,13 @@ export default function DashboardPage() {
                 <Sparkles className="w-4 h-4 text-indigo-500 dark:text-indigo-300" />
               </div>
               <div>
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Akturio KI-Briefing</h2>
+                <h2 className="text-sm font-semibold text-gray-900 dark:text-white">Berko AI KI-Briefing</h2>
                 <p className="text-xs text-gray-500 dark:text-gray-500">Tägliche KI-Zusammenfassung · {formatDate(today)}</p>
               </div>
               <div className="ml-auto flex items-center gap-2">
                 {briefingLoading && (
                   <span className="flex items-center gap-1.5 text-xs text-indigo-500 dark:text-indigo-400">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Akturio analysiert…
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Berko AI analysiert…
                   </span>
                 )}
                 {briefingGenerated && !briefingLoading && (

@@ -1,8 +1,8 @@
-# Spezifikation: Akturio-Modul „Potenzialanalyse / Value-Add-Underwriting"
+# Spezifikation: Berko AI-Modul „Potenzialanalyse / Value-Add-Underwriting"
 
 **Version:** 1.0 (Entwurf)
 **Stand:** Juni 2026
-**Kontext:** Akturio (Supabase / NestJS / Next.js), Preisdatenbank, Document-Understanding-Pipeline und RoomPlan/ARKit-Scan.
+**Kontext:** Berko AI (Supabase / NestJS / Next.js), Preisdatenbank, Document-Understanding-Pipeline und RoomPlan/ARKit-Scan.
 
 ---
 
@@ -27,7 +27,7 @@ Das Modul bewertet ein gesamtes Immobilienportfolio (mehrere Einheiten und/oder 
 
 4. **Jede Maßnahme reduziert auf drei Kennzahlen** (Invest, ΔNetto-Ertrag p.a., Werthebel) — das macht alle Hebel vergleichbar und priorisierbar.
 
-5. **Multi-Tenant via Supabase RLS** (bestehendes Akturio-Schema fortführen).
+5. **Multi-Tenant via Supabase RLS** (bestehendes Berko AI-Schema fortführen).
 
 ---
 
@@ -385,7 +385,7 @@ quick_check → baurecht_pruefung → priorisierung →
 wirtschaftlichkeit → finanzierung_foerderung → portfolio_rollout
 ```
 
-Jeder Schritt mit Status-Tracking und Dokumenten-Anhang (Energieausweis, B-Plan-Auszug, Bankzusage). Anbindung an Akturio-CRM/DMS, sodass aus der Analyse die Maßnahmen-Abwicklung wird.
+Jeder Schritt mit Status-Tracking und Dokumenten-Anhang (Energieausweis, B-Plan-Auszug, Bankzusage). Anbindung an Berko AI-CRM/DMS, sodass aus der Analyse die Maßnahmen-Abwicklung wird.
 
 ---
 

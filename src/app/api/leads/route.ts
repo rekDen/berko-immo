@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
 
   try {
     await transporter.sendMail({
-      from: '"Anna (Akturio)" <anna@akturio.com>',
-      to: "daniel.tauscher@akturio.com",
+      from: '"Anna (Berko AI)" <anna@berko.ai>',
+      to: "koehler@berko.ai",
       subject,
       text,
     });

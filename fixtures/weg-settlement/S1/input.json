@@ -1,0 +1,56 @@
+{
+  "propertyId": "fixture-s1",
+  "year": 2026,
+  "units": [
+    { "id": "a", "sortKey": "W01" },
+    { "id": "b", "sortKey": "W02" },
+    { "id": "c", "sortKey": "W03" },
+    { "id": "d", "sortKey": "W04" }
+  ],
+  "allocationKeys": [
+    { "id": "mea", "name": "MEA", "type": "co_ownership" },
+    { "id": "unitcount", "name": "Pro Einheit", "type": "unit_count" }
+  ],
+  "allocationKeyValues": [
+    { "keyId": "mea", "unitId": "a", "value": 250, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "mea", "unitId": "b", "value": 250, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "mea", "unitId": "c", "value": 300, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "mea", "unitId": "d", "value": 200, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "unitcount", "unitId": "a", "value": 1, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "unitcount", "unitId": "b", "value": 1, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "unitcount", "unitId": "c", "value": 1, "validFrom": "2026-01-01", "validTo": null },
+    { "keyId": "unitcount", "unitId": "d", "value": 1, "validFrom": "2026-01-01", "validTo": null }
+  ],
+  "costTypes": [
+    { "id": "hausmeister", "name": "Hausmeister", "direction": "expense", "allocationKeyId": "mea", "isHeating": false, "allowsDirectCharge": false, "apportionable": true, "betrkvNo": 14, "resolutionRef": null },
+    { "id": "versicherung", "name": "Versicherung", "direction": "expense", "allocationKeyId": "mea", "isHeating": false, "allowsDirectCharge": false, "apportionable": true, "betrkvNo": 13, "resolutionRef": null },
+    { "id": "verwaltung", "name": "Verwaltervergütung", "direction": "expense", "allocationKeyId": "unitcount", "isHeating": false, "allowsDirectCharge": false, "apportionable": false, "betrkvNo": null, "resolutionRef": "Beschluss ETV 2025-11-15 TOP 4" },
+    { "id": "zinsen", "name": "Zinserträge", "direction": "income", "allocationKeyId": "mea", "isHeating": false, "allowsDirectCharge": false, "apportionable": false, "betrkvNo": null, "resolutionRef": null }
+  ],
+  "costBookings": [
+    { "id": "bk-hm", "costTypeId": "hausmeister", "amount": 10000 },
+    { "id": "bk-vs", "costTypeId": "versicherung", "amount": 5000 },
+    { "id": "bk-vw", "costTypeId": "verwaltung", "amount": 4000 },
+    { "id": "bk-zi", "costTypeId": "zinsen", "amount": 1000 }
+  ],
+  "heatingAllocations": [],
+  "advances": [
+    { "unitId": "a", "operatingCents": 4000, "reserveCents": 0 },
+    { "unitId": "b", "operatingCents": 4000, "reserveCents": 0 },
+    { "unitId": "c", "operatingCents": 5000, "reserveCents": 0 },
+    { "unitId": "d", "operatingCents": 3500, "reserveCents": 0 }
+  ],
+  "advancePaymentsIst": 16500,
+  "specialLevyPaymentsIst": 0,
+  "internalTransfersNet": 0,
+  "priorYearSettlementPayments": 0,
+  "bankAccounts": [
+    { "id": "bank-op", "kind": "operating", "openingBalance": 100000, "totalIn": 20000, "totalOut": 19000, "confirmedClosingBalance": 101000 }
+  ],
+  "priorYearClosings": [],
+  "reserveDevelopments": [],
+  "specialLevies": [],
+  "ownerReceivablesOpen": [],
+  "assetItems": [],
+  "liabilityItems": []
+}

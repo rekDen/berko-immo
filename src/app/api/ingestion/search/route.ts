@@ -91,7 +91,7 @@ async function generateAnswer(q: string, sources: SearchResult[]): Promise<strin
       max_tokens: 2048,
       thinking: { type: "adaptive" },
       system:
-        "Du bist Akturios Wissensassistent für die Immobilienverwaltung. " +
+        "Du bist der Wissensassistent von Berko AI für die Immobilienverwaltung. " +
         "Erfasse zuerst genau, wonach gefragt wird (Absicht, gemeinte Entität, Zeitbezug), " +
         "und beantworte die Frage dann präzise und auf Deutsch AUSSCHLIESSLICH anhand der " +
         "bereitgestellten Quellen. Belege jede Aussage mit der Quellennummer in eckigen " +

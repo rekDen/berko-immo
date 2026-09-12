@@ -2,7 +2,7 @@
 /**
  * send-emails.js
  *
- * Versendet 50 realistische Hausverwaltungs-E-Mails an daniel.tauscher@akturio.com.
+ * Versendet 50 realistische Hausverwaltungs-E-Mails an daniel.tauscher@berko.ai.
  * Die E-Mails sind gleichmäßig auf 11 Kategorien verteilt:
  *   6 Kategorien mit 5 Mails + 5 Kategorien mit 4 Mails = 50
  *
@@ -32,7 +32,7 @@
  *   SMTP_USER       SMTP-Benutzername
  *   SMTP_PASS       SMTP-Passwort / App-Passwort
  *   SMTP_FROM       Echte Absenderadresse, z.B. "noreply@Heinz-estate.de"
- *   SMTP_TO         (optional) Standard: daniel.tauscher@akturio.com
+ *   SMTP_TO         (optional) Standard: daniel.tauscher@berko.ai
  *   SEND_DELAY_MS   (optional) Verzögerung zwischen Mails, Default 1500
  *   SENDER_MODE     (optional) "reply-to" (Default) oder "spoof"
  *   DRY_RUN         (optional) "true" => keine Mails versenden, nur Vorschau ausgeben
@@ -48,10 +48,10 @@ const CONFIG = {
   host: process.env.SMTP_HOST || 'smtp.ionos.de',
   port: parseInt(process.env.SMTP_PORT || '587', 10),
   secure: (process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
-  user: process.env.SMTP_USER || 'demo@akturio.com',
+  user: process.env.SMTP_USER || 'demo@berko.ai',
   pass: process.env.SMTP_PASS || 'm7WjQ.P8eyad@',
-  from: process.env.SMTP_FROM || process.env.SMTP_USER || "demo@akturio.com",
-  to: process.env.SMTP_TO || 'daniel.tauscher@akturio.com',
+  from: process.env.SMTP_FROM || process.env.SMTP_USER || "demo@berko.ai",
+  to: process.env.SMTP_TO || 'daniel.tauscher@berko.ai',
   senderMode: "reply-to",
   delayMs: parseInt(process.env.SEND_DELAY_MS || '1500', 10),
   dryRun: (process.env.DRY_RUN || 'false').toLowerCase() === 'true',
@@ -950,7 +950,7 @@ Agenda:
 1. Status laufende Projekte (jeder kurz)
 2. Neue Objekte in Aufnahme
 3. Engpässe / Eskalationen
-4. Schulungsbedarf Akturio (neue Software)
+4. Schulungsbedarf Berko AI (neue Software)
 5. Urlaubsplanung Sommer
 6. Verschiedenes
 
@@ -980,12 +980,12 @@ Heinz`,
   },
   {
     category: 'Intern',
-    sender: { name: 'Akturio Customer Success', email: 'success@akturio.com' },
-    subject: 'Schulungstermine Akturio - Anmeldung Ihrer Mitarbeiter',
+    sender: { name: 'Berko AI Customer Success', email: 'success@berko.ai' },
+    subject: 'Schulungstermine Berko AI - Anmeldung Ihrer Mitarbeiter',
     body:
 `Sehr geehrter Herr Tauscher,
 
-wir freuen uns, dass Sie Akturio einsetzen. Hier die Termine für die Onboarding-Schulungen:
+wir freuen uns, dass Sie Berko AI einsetzen. Hier die Termine für die Onboarding-Schulungen:
 
 - Modul 1: Stammdaten & Objekte - 20.05., 14-17 Uhr
 - Modul 2: Buchhaltung & Abrechnung - 27.05., 14-17 Uhr
@@ -997,7 +997,7 @@ Nachbereitung-Materialien gehen automatisch an die Teilnehmer.
 
 Mit freundlichen Grüßen
 Lisa Hartmann
-Akturio Customer Success`,
+Berko AI Customer Success`,
   },
   {
     category: 'Intern',

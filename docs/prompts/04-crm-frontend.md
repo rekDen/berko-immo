@@ -1,7 +1,7 @@
 # Aufgabe: Frontend-Modul CRM für Hausverwaltung (React + TypeScript)
 
 ## Kontext
-Frontend für das Akturio-CRM-Modul. Stack identisch zum DMS-Modul:
+Frontend für das Berko AI-CRM-Modul. Stack identisch zum DMS-Modul:
 - React 18 + TypeScript
 - Vite
 - TailwindCSS + shadcn/ui
