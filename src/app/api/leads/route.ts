@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { createAdminClient } from "@/lib/supabase/admin";
 
-const API_KEY = "79ap-8MQU-niR9iEvRnqXfJ34ycddyTuD-j";
+const API_KEY = process.env.ELEVENLABS_TO_BERKO_KEY;
 
 export async function POST(request: NextRequest) {
   if (request.headers.get("api_key") !== API_KEY) {
@@ -19,27 +18,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const admin = createAdminClient();
-  const { data: account } = await admin
-    .from("email_accounts")
-    .select("imap_host, imap_user, imap_password")
-    .single();
-
-  if (!account) {
-    return NextResponse.json({ error: "SMTP nicht konfiguriert" }, { status: 500 });
-  }
-
-  const smtpHost = account.imap_host.replace("imap.", "smtp.");
   const transporter = nodemailer.createTransport({
-    host: smtpHost,
-    port: 465,
-    secure: true,
-    auth: { user: account.imap_user, pass: account.imap_password },
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT),
+    secure: false,
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWD},
   });
 
   const subject = company_name
-    ? `Neuer Lead: ${name} (${company_name})`
-    : `Neuer Lead: ${name}`;
+    ? `Neuer Anruf: ${name} (${company_name})`
+    : `Neuer Anruf: ${name}`;
 
   const text = [
     `Name: ${name}`,
@@ -54,7 +42,7 @@ export async function POST(request: NextRequest) {
 
   try {
     await transporter.sendMail({
-      from: '"Anna (Berko AI)" <anna@berko.ai>',
+      from: '"Anna von Berko AI" <service@berko.ai>',
       to: "koehler@berko.ai",
       subject,
       text,

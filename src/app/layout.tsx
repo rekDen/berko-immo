@@ -8,6 +8,14 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Berko AI — KI-Assistent für Hausverwaltungen",
   description: "KI-gestützte Hausverwaltung-Management-Software",
+  icons: {
+    apple: [{ url: "/favicon/apple-touch-icon.png", sizes: "180x180" }],
+    icon: [
+      { url: "/favicon/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+  },
+  manifest: "/favicon/site.webmanifest",
 };
 
 export default function RootLayout({

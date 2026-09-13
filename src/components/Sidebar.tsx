@@ -106,7 +106,7 @@ export default function Sidebar() {
         {collapsed ? (
           <LogoMark className="w-9 h-9 mx-auto" />
         ) : (
-          <Logo className="h-12 w-auto max-w-full text-gray-900 dark:text-white" />
+          <Logo className="h-10 mx-3 w-auto max-w-full text-gray-900 dark:text-white" />
         )}
       </div>
 

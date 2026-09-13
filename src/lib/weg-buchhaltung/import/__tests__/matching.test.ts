@@ -5,6 +5,9 @@ import type { RowWithDuplicateFlag } from "../types";
 const row: RowWithDuplicateFlag = {
   bookingDate: "2026-03-05", amount: -24700, purpose: "Hausmeister Februar 2026",
   counterpartyIban: "DE12345678901234567890", counterpartyName: null, isDuplicate: false,
+  dedupKey: "hash:test#0", valueDate: null, currency: "EUR", counterpartyBic: null,
+  endToEndId: null, mandateId: null, bankRef: null, bankTxCode: null, returnReasonCode: null,
+  isReversal: false, batchParentId: null, needsManualSplit: false, raw: null,
 };
 
 describe("applyMatchingRules", () => {
