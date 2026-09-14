@@ -9,6 +9,9 @@ import {
 import { contactDisplayName, type RoleType } from "@/types/crm";
 import PersonAvatar from "@/components/crm/PersonAvatar";
 import RoleChip from "@/components/crm/RoleChip";
+import { ProfileEditor } from "@/components/mietermatching/ProfileEditor";
+import { ApplicantsSection } from "@/components/mietermatching/ApplicantsSection";
+import type { Profile, Applicant } from "@/components/mietermatching/shared";
 
 type UnitDetail = {
   id: string;
@@ -63,12 +66,21 @@ const UNIT_TYPE_LABELS: Record<string, string> = {
 export default function UnitDetailPage() {
   const { propertyId, unitId } = useParams<{ propertyId: string; unitId: string }>();
   const [unit, setUnit] = useState<UnitDetail | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/units/${unitId}`);
-    if (res.ok) setUnit(await res.json());
+    const [unitRes, profileRes, applicantsRes] = await Promise.all([
+      fetch(`/api/units/${unitId}`),
+      fetch(`/api/mietermatching/profiles?unit_id=${unitId}`),
+      fetch(`/api/mietermatching/applicants?unit_id=${unitId}`),
+    ]);
+    if (unitRes.ok) setUnit(await unitRes.json());
+    if (profileRes.ok) setProfile(await profileRes.json());
+    if (applicantsRes.ok) setApplicants(await applicantsRes.json());
     setLoading(false);
   }, [unitId]);
 
@@ -235,6 +247,16 @@ export default function UnitDetailPage() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* KI-Mietermatching */}
+      <div className="mt-6 space-y-4">
+        {error && <p className="text-sm text-red-500">{error}</p>}
+        <ProfileEditor unitId={unitId} profile={profile} onChange={load} onError={setError} />
+        <ApplicantsSection
+          propertyId={propertyId} unitId={unitId} profile={profile} applicants={applicants}
+          onChange={load} onError={setError}
+        />
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Loader2, Check, Code2, Type } from "lucide-react";
+import { MessageTemplatesSection } from "@/components/mietermatching/MessageTemplatesSection";
 
 type Profile = {
   first_name: string | null;
@@ -417,6 +418,16 @@ export default function EinstellungenPage() {
           </div>
 
           {templateError && <p className="text-sm text-red-500 mt-4">{templateError}</p>}
+        </div>
+
+        {/* Mietermatching: Einladen/Ablehnen-Vorlagen */}
+        <div className={cardCls}>
+          <h2 className={sectionTitleCls}>Vorlagen · Mietermatching</h2>
+          <p className={sectionHintCls}>
+            Werden beim Einladen bzw. Ablehnen von Mietinteressenten vorgeschlagen. Ohne eigene Vorlage wird ein
+            interner Standardtext verwendet.
+          </p>
+          <MessageTemplatesSection />
         </div>
       </div>
     </div>
