@@ -279,3 +279,99 @@ bare Kriteriengewichtung/Score-Farbbänder als Tenant-Standard, Filter
 echte Besichtigungstermin-Verknüpfung (braucht Kalendermodul), Anna-
 Sprachaktion, automatisierte SCHUFA-Abfrage — keines davon begonnen,
 wartet auf Freigabe.
+
+## 4. Öffentliches Bewerbungsformular + Kriteriengewichtung je Einheit umgesetzt und live verifiziert — 2026-09-14
+
+Auf Nutzerwunsch zwei Ergänzungen zum bestehenden Kern, **ohne neue
+Migration** — beide nutzen ausschließlich bereits vorhandene Spalten/Tabellen
+(`desired_tenant_profile.weights`, `applicant`/`applicant_document`/
+`documents` inkl. `source='web_form'`, seit MM1/MM2 vorhanden).
+
+**1. Kriteriengewichtung je Einheit (UI für ein bereits bestehendes Feld):**
+`ProfileEditor.tsx` bekam einen neuen Abschnitt „Gewichtung der Kriterien"
+mit sechs Zahlenfeldern (eines je `CriterionKey` aus `scoring.ts`,
+Labels aus dem bereits vorhandenen `CRITERION_LABELS`), Live-Summenanzeige
+mit Warnfarbe bei ≠ 100 %, Vorbelegung mit den bisherigen Hartcode-Defaults
+(30/15/25/10/10/10) falls das Profil noch keine eigene Gewichtung hat.
+Read-only-Ansicht zeigt die aktive Gewichtung als eine Zeile. Keine
+Backend-Änderung nötig — `PATCH /api/mietermatching/profiles/[id]` nahm
+`weights` bereits seit MM1 entgegen.
+
+**2. Öffentliches Bewerbungsformular (Spec-Idee erweitert um Self-Service,
+in der ursprünglichen Spezifikation nicht vorgesehen, aber vom Auftraggeber
+gewünscht):**
+- **Middleware** (`src/middleware.ts`): `/bewerbung` und
+  `/api/public/mietermatching` von der Auth-Pflicht ausgenommen — analog zum
+  bestehenden `/api/leads`-Präzedenzfall für einen echten öffentlichen
+  Endpunkt in dieser Codebasis.
+- **Link-Schema:** `/bewerbung/<unitId>` — die Einheiten-UUID dient direkt
+  als unrateanbarer Zugriffsschlüssel (kein zusätzliches Token-System
+  gebaut; konsistent mit der übrigen App, die UUIDs bereits als einzige
+  Objektreferenz verwendet). Ein Verwalter kopiert den Link über den neuen
+  Button „Bewerbungslink kopieren" (`ApplicantsSection.tsx`, nur aktiv, wenn
+  ein Wunschmieter-Profil existiert).
+- **`GET /api/public/mietermatching/[unitId]`** (kein Auth, `createAdminClient()`):
+  liefert nur, was ein Bewerber zum Ausfüllen braucht (Objekt-/Einheiten­
+  bezeichnung, akzeptierte Beschäftigungsarten, Haushaltsgrößen-/Einzugs­
+  korridor, Pflichtdokumente) — bewusst **ohne** `tenant_id`, Gewichtung,
+  Score-Schwellenwerte oder andere interne Felder. 404, wenn kein aktives
+  Profil existiert.
+- **`POST /api/public/mietermatching/[unitId]/apply`** (kein Auth):
+  `multipart/form-data` mit Textfeldern + optional einer Datei je
+  Dokumenttyp (`doc_income_proof` usw.). `tenant_id` wird ausschließlich
+  serverseitig aus der Einheit abgeleitet, nie aus dem Request übernommen.
+  Validiert Dateityp (PDF/PNG/JPEG) und Größe (max. 10 MB) vor dem Upload;
+  ein einzelner fehlgeschlagener Datei-Upload blockiert die restliche
+  Bewerbung nicht. Legt `applicant` (`source='web_form'`), `documents`
+  (Level `unit`, gleiche Kategorien wie MM2) und `applicant_document` an,
+  berechnet danach den Score über den bestehenden `rescoreApplicant()`-
+  Helfer. Antwort ist bewusst nur `{ ok: true }` — der Bewerber sieht nie
+  seinen eigenen Score oder das Kriterien-Breakdown, das bleibt
+  Verwalter-intern (kein Widerspruch zur Spec, die das nirgends für
+  Bewerber vorsieht).
+- **`src/app/bewerbung/[unitId]/page.tsx`** (neu, öffentlich, kein
+  App-Layout/Sidebar): eigenständige Seite im Login-Seiten-Stil,
+  zeigt Objekt-/Einheitenbezeichnung und -adresse, Formular mit
+  Pflichtfeldern (Vorname, Nachname, E-Mail) + optionalen Feldern
+  (Telefon, Einkommen, Beschäftigungsart — Auswahl auf die im Profil
+  akzeptierten Arten eingeschränkt, falls welche hinterlegt sind,
+  Haushaltsgröße, Einzugstermin) sowie je benötigtem Dokumenttyp einen
+  Datei-Upload. Nach Absenden eine Erfolgsseite ohne jede Score-Angabe.
+- `CATEGORY_BY_DOC_TYPE` (Dokumenttyp → `document_categories.id`-Mapping)
+  aus der bestehenden authentifizierten Upload-Route in eine gemeinsame
+  Datei `src/lib/mietermatching/document-categories.ts` extrahiert, damit
+  die neue öffentliche Route dieselbe Zuordnung nutzt statt sie zu
+  duplizieren.
+
+`tsc --noEmit` clean. `eslint` clean bis auf die bereits bekannte, projekt­
+weit vorbestehende `react-hooks/set-state-in-effect`-Warnung (keine neuen
+Treffer). Volle Testsuite weiterhin 202/202 grün (an der Scoring-Logik
+selbst hat sich nichts geändert, nur an der Dateneingabe).
+
+**Live-Verifikation** (`koehler@berko.ai`, Einheit M01):
+- Gewichtung auf 50/10/10/10/10/10 (Einkommen/Beschäftigung/SCHUFA/
+  Haushaltsgröße/Einzug/Dokumente) gesetzt, Summenanzeige zeigte korrekt
+  „100 %", nach Speichern in der Übersicht exakt so dargestellt.
+- Öffentlicher Endpunkt **ohne jegliche Auth-Cookies** per `curl` verifiziert
+  (HTTP 200 sowohl für die Seite als auch für `GET
+  /api/public/mietermatching/[unitId]`, Antwort enthielt nachweislich keine
+  internen Felder) — bestätigt, dass die Middleware-Ausnahme tatsächlich für
+  nicht angemeldete Aufrufer greift, nicht nur für eingeloggte Nutzer.
+- Bewerbungsformular vollständig ausgefüllt („Max Bewerber", Netto 2.900 €,
+  unbefristet, HH-Größe 2) inkl. Upload einer selbst erzeugten
+  Gehaltsabrechnung (PDF via `pdf-lib`) für „Einkommensnachweis" →
+  Erfolgsseite korrekt angezeigt.
+- Als Verwalter geprüft: Bewerber korrekt mit Quelle „Web-Formular"
+  angelegt, Dokument korrekt als „Einkommensnachweis" hochgeladen und der
+  Einheit zugeordnet, Score **75 %** — exakt der von Hand nachgerechnete
+  erwartete Wert unter der neuen 50/10/10/10/10/10-Gewichtung (Einkommen/
+  Miete-Verhältnis 90/100 × 50 % + Beschäftigung 0/100 × 10 % + SCHUFA
+  50/100 × 10 % + Haushaltsgröße 100/100 × 10 % + Einzug 50/100 × 10 % +
+  Vollständigkeit 100/100 × 10 % = 75).
+
+Alle Testdaten vollständig entfernt (1 `applicant`, 1 `applicant_document`
+inkl. Storage-Datei, 1 `match_result`, 1 `desired_tenant_profile`), lokale
+Test-PDFs und `.playwright-mcp`-Verzeichnis gelöscht, Testpasswort
+zurückgesetzt, Dev-Server gestoppt.
+
+**Beide Ergänzungen sind damit abgeschlossen und live verifiziert.**

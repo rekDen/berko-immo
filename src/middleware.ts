@@ -41,7 +41,11 @@ export async function middleware(request: NextRequest) {
     !user &&
     !request.nextUrl.pathname.startsWith("/login") &&
     !request.nextUrl.pathname.startsWith("/auth") &&
-    !request.nextUrl.pathname.startsWith("/api/leads")
+    !request.nextUrl.pathname.startsWith("/api/leads") &&
+    // Öffentliches Bewerbungsformular (Mietermatching) — Interessenten haben
+    // keinen Account, der Link wird direkt an sie verschickt.
+    !request.nextUrl.pathname.startsWith("/bewerbung") &&
+    !request.nextUrl.pathname.startsWith("/api/public/mietermatching")
   ) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, UserX, Users, X } from "lucide-react";
+import { Check, Link2, Loader2, Plus, UserX, Users, X } from "lucide-react";
 import { inputCls, labelCls, cardCls, STATUS_LABELS, SOURCE_LABELS, type Applicant, type Profile } from "./shared";
 import { MatchCircle } from "./MatchCircle";
 
@@ -41,6 +41,18 @@ export function ApplicantsSection({
   const [confirmingBulk, setConfirmingBulk] = useState(false);
   const [rejectionDefault, setRejectionDefault] = useState<RejectionTemplate | null>(null);
   const [bulkRejecting, setBulkRejecting] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  async function copyApplicationLink() {
+    const link = `${window.location.origin}/bewerbung/${unitId}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2500);
+    } catch {
+      onError("Link konnte nicht in die Zwischenablage kopiert werden");
+    }
+  }
 
   useEffect(() => {
     fetch("/api/mietermatching/message-templates?type=rejection")
@@ -115,14 +127,25 @@ export function ApplicantsSection({
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5" /> Bewerber
         </h3>
-        <button
-          onClick={() => setShowNew((v) => !v)}
-          disabled={!profile}
-          title={!profile ? "Zuerst ein Wunschmieter-Profil anlegen" : undefined}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-40 transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" /> Bewerber erfassen
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={copyApplicationLink}
+            disabled={!profile}
+            title={!profile ? "Zuerst ein Wunschmieter-Profil anlegen" : "Öffentlichen Bewerbungslink kopieren"}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-orange-400 hover:text-orange-600 disabled:opacity-40 transition-colors"
+          >
+            {linkCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Link2 className="w-3.5 h-3.5" />}
+            {linkCopied ? "Kopiert" : "Bewerbungslink kopieren"}
+          </button>
+          <button
+            onClick={() => setShowNew((v) => !v)}
+            disabled={!profile}
+            title={!profile ? "Zuerst ein Wunschmieter-Profil anlegen" : undefined}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-40 transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" /> Bewerber erfassen
+          </button>
+        </div>
       </div>
 
       {showNew && (

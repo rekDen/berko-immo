@@ -2,8 +2,17 @@
 
 import { useState } from "react";
 import { Loader2, Settings2 } from "lucide-react";
-import { inputCls, labelCls, cardCls, type Profile } from "./shared";
-import { DOC_TYPE_LABELS, type ApplicantDocType } from "@/lib/mietermatching/scoring";
+import { inputCls, labelCls, cardCls, CRITERION_LABELS, type Profile } from "./shared";
+import { DOC_TYPE_LABELS, type ApplicantDocType, type CriterionKey } from "@/lib/mietermatching/scoring";
+
+// Feste Anzeigereihenfolge der sechs gewichtbaren Kriterien (Spec §3.2/§7).
+const WEIGHT_CRITERIA: CriterionKey[] = [
+  "income_ratio", "employment", "schufa", "household_size", "move_in", "documents_completeness",
+];
+
+const DEFAULT_WEIGHTS: Record<CriterionKey, number> = {
+  income_ratio: 30, employment: 15, schufa: 25, household_size: 10, move_in: 10, documents_completeness: 10,
+};
 
 const EMPLOYMENT_TYPE_OPTIONS = [
   { value: "unbefristet", label: "Unbefristet angestellt" },
@@ -28,6 +37,7 @@ interface FormState {
   move_in_latest: string;
   schufa_required: boolean;
   required_documents: ApplicantDocType[];
+  weights: Record<CriterionKey, number>;
 }
 
 function toFormState(p: Profile | null): FormState {
@@ -44,6 +54,7 @@ function toFormState(p: Profile | null): FormState {
     move_in_latest: p?.move_in_latest ?? "",
     schufa_required: p?.schufa_required ?? false,
     required_documents: (p?.required_documents as ApplicantDocType[] | undefined) ?? [],
+    weights: { ...DEFAULT_WEIGHTS, ...(p?.weights as Partial<Record<CriterionKey, number>> | undefined) },
   };
 }
 
@@ -78,6 +89,7 @@ export function ProfileEditor({
       move_in_latest: form.move_in_latest || null,
       schufa_required: form.schufa_required,
       required_documents: form.required_documents,
+      weights: form.weights,
     };
 
     const res = profile
@@ -116,6 +128,8 @@ export function ProfileEditor({
     }));
   }
 
+  const weightSum = WEIGHT_CRITERIA.reduce((sum, k) => sum + (form.weights[k] || 0), 0);
+
   if (!editing) {
     return (
       <div className={`${cardCls} p-4`}>
@@ -148,6 +162,12 @@ export function ProfileEditor({
                 {profile.required_documents.length
                   ? profile.required_documents.map((d) => DOC_TYPE_LABELS[d as ApplicantDocType] ?? d).join(", ")
                   : "keine"}
+              </p>
+            </div>
+            <div className="col-span-2 sm:col-span-3">
+              <p className="text-xs text-gray-400">Gewichtung der Kriterien</p>
+              <p className="text-gray-700 dark:text-gray-300">
+                {WEIGHT_CRITERIA.map((k) => `${CRITERION_LABELS[k]} ${(profile.weights as Record<CriterionKey, number> | undefined)?.[k] ?? DEFAULT_WEIGHTS[k]} %`).join(" · ")}
               </p>
             </div>
           </div>
@@ -228,6 +248,27 @@ export function ProfileEditor({
             >
               {label}
             </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className={labelCls}>Gewichtung der Kriterien</label>
+          <span className={`text-xs ${weightSum === 100 ? "text-gray-400" : "text-amber-600 dark:text-amber-400"}`}>
+            Summe: {weightSum} % {weightSum !== 100 && "(sollte 100 % ergeben)"}
+          </span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {WEIGHT_CRITERIA.map((k) => (
+            <div key={k}>
+              <label className={labelCls}>{CRITERION_LABELS[k]} (%)</label>
+              <input
+                type="number" min={0} max={100} value={form.weights[k]}
+                onChange={(e) => setForm({ ...form, weights: { ...form.weights, [k]: Number(e.target.value) } })}
+                className={`${inputCls} w-full`}
+              />
+            </div>
           ))}
         </div>
       </div>
