@@ -375,3 +375,57 @@ Test-PDFs und `.playwright-mcp`-Verzeichnis gelöscht, Testpasswort
 zurückgesetzt, Dev-Server gestoppt.
 
 **Beide Ergänzungen sind damit abgeschlossen und live verifiziert.**
+
+## 5. Bewerbungslink per E-Mail versenden — umgesetzt und live verifiziert — 2026-09-14
+
+Ergänzung zum öffentlichen Bewerbungsformular (Abschnitt 4): Verwalter
+konnten den Link bisher nur kopieren und selbst verschicken — jetzt geht es
+per Klick direkt aus der App.
+
+**`POST /api/mietermatching/send-application-link`** (neu, authentifiziert)
+— Body `{ unit_id, emails: string[] }`. Prüft Einheit + aktives
+Wunschmieter-Profil, validiert E-Mail-Format, versendet den Link
+**einzeln je Empfänger** (kein gemeinsames To — Interessenten sollen sich
+nicht gegenseitig sehen) über dieselbe IMAP/SMTP-Konfiguration des
+Verwalters wie die übrige App (`getImapCredentials()` + nodemailer, gleiches
+Muster wie bei den Einladen/Ablehnen-Aktionen aus MM3). Liefert je Adresse
+ein Erfolg/Fehler-Ergebnis zurück, ein einzelner Fehlschlag blockiert die
+übrigen Versände nicht. Kein neues Vorlagensystem — der Text ist bewusst
+fest codiert (Objekt-/Einheitenbezeichnung, Adresse, Link, Hinweis auf
+mitzubringende Unterlagen), da es sich um einen einmaligen Verteil-Hinweis
+handelt, keine Vorlage im Sinne von Spec §6/§7.
+
+**UI:** `ApplicantsSection.tsx` bekam einen dritten Button „Per E-Mail
+senden" neben „Bewerbungslink kopieren"/„Bewerber erfassen" (ebenfalls nur
+aktiv mit bestehendem Profil). Öffnet ein Panel mit einem Freitextfeld für
+eine oder mehrere E-Mail-Adressen (komma-, semikolon- oder zeilengetrennt),
+zeigt nach dem Versand je Adresse "gesendet"/"fehlgeschlagen" an und
+schließt sich bei vollständigem Erfolg automatisch.
+
+`tsc --noEmit` und `eslint` clean, keine neuen Treffer. Volle Testsuite
+weiterhin 202/202 grün (reine Backend-/UI-Ergänzung, keine Scoring-Logik
+betroffen). Keine neue Migration nötig.
+
+**Live-Verifikation** (`koehler@berko.ai`, Einheit M01, Versand an den
+Testaccount selbst): Button geöffnet, eine Adresse eingetragen, „Link
+senden" geklickt → Panel schloss sich automatisch (Erfolg). Im
+Posteingang tatsächlich zugestellt bestätigt: E-Mail "Bewerbungslink für
+Miethaus Zschochersche Straße 15 · Einheit M01" mit exakt dem korrekten
+Link (`/bewerbung/<unitId>`), der Einheitenadresse und dem Hinweis auf
+mitzubringende Unterlagen.
+
+**Dabei eine Aufräum-Lücke aus früheren Live-Verifikationen bemerkt und
+behoben:** Die Cleanup-Skripte in Abschnitt 3/4 hatten Test-E-Mails bisher
+nur aus der lokalen `emails`-Spiegel-Tabelle gelöscht, nicht vom echten
+IMAP-Postfach — zwei ältere Test-E-Mails aus Abschnitt 3 (MM3) lagen daher
+noch im tatsächlichen Posteingang des Testaccounts. Nachträglich mit
+`deleteImapEmail()` (bestehende Funktion aus `src/lib/imap.ts`, sonst für
+`DELETE /api/emails/[id]` genutzt) auch serverseitig entfernt. Für den
+aktuellen Testfall direkt mit IMAP-Löschung statt nur DB-Löschung
+aufgeräumt — dieses Muster sollte für künftige Live-Verifikationen mit
+echtem Mailversand übernommen werden.
+
+Testprofil entfernt, `.playwright-mcp`-Verzeichnis gelöscht, Testpasswort
+zurückgesetzt, Dev-Server gestoppt.
+
+**Feature ist damit abgeschlossen und live verifiziert.**

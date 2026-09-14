@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Check, Code2, Type } from "lucide-react";
+import Link from "next/link";
+import { Loader2, Check, Code2, Type, Users, ChevronRight } from "lucide-react";
 import { MessageTemplatesSection } from "@/components/mietermatching/MessageTemplatesSection";
 
 type Profile = {
@@ -275,6 +276,23 @@ export default function EinstellungenPage() {
             )}
           </div>
         </form>
+
+        {/* Nutzerverwaltung */}
+        <Link
+          href="/einstellungen/nutzer"
+          className={`${cardCls} flex items-center justify-between hover:border-orange-300 dark:hover:border-orange-700 transition-colors`}
+        >
+          <div className="flex items-center gap-3">
+            <Users className="w-5 h-5 text-gray-400" />
+            <div>
+              <h2 className={sectionTitleCls}>Nutzerverwaltung</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Login- und Nutzungshistorie je Nutzer (nur für Administratoren).
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        </Link>
 
         {/* Passwort ändern */}
         <form onSubmit={handlePasswordSubmit} className={cardCls}>

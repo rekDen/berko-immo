@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Check, Link2, Loader2, Plus, UserX, Users, X } from "lucide-react";
+import { Check, Link2, Loader2, Mail, Plus, UserX, Users, X } from "lucide-react";
 import { inputCls, labelCls, cardCls, STATUS_LABELS, SOURCE_LABELS, type Applicant, type Profile } from "./shared";
 import { MatchCircle } from "./MatchCircle";
 
@@ -42,6 +42,10 @@ export function ApplicantsSection({
   const [rejectionDefault, setRejectionDefault] = useState<RejectionTemplate | null>(null);
   const [bulkRejecting, setBulkRejecting] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [showSendLink, setShowSendLink] = useState(false);
+  const [sendLinkEmails, setSendLinkEmails] = useState("");
+  const [sendingLink, setSendingLink] = useState(false);
+  const [sendLinkResults, setSendLinkResults] = useState<{ email: string; ok: boolean; error?: string }[] | null>(null);
 
   async function copyApplicationLink() {
     const link = `${window.location.origin}/bewerbung/${unitId}`;
@@ -52,6 +56,30 @@ export function ApplicantsSection({
     } catch {
       onError("Link konnte nicht in die Zwischenablage kopiert werden");
     }
+  }
+
+  async function sendApplicationLink(e: React.FormEvent) {
+    e.preventDefault();
+    const emails = sendLinkEmails.split(/[,\n;]/).map((s) => s.trim()).filter(Boolean);
+    if (emails.length === 0) return;
+    setSendingLink(true);
+    setSendLinkResults(null);
+    const res = await fetch("/api/mietermatching/send-application-link", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ unit_id: unitId, emails }),
+    });
+    if (res.ok) {
+      const data: { results: { email: string; ok: boolean; error?: string }[] } = await res.json();
+      setSendLinkResults(data.results);
+      if (data.results.every((r) => r.ok)) {
+        setSendLinkEmails("");
+        setTimeout(() => { setShowSendLink(false); setSendLinkResults(null); }, 2000);
+      }
+    } else {
+      const err = await res.json().catch(() => ({ error: "Versand fehlgeschlagen" }));
+      onError(err.error);
+    }
+    setSendingLink(false);
   }
 
   useEffect(() => {
@@ -138,6 +166,14 @@ export function ApplicantsSection({
             {linkCopied ? "Kopiert" : "Bewerbungslink kopieren"}
           </button>
           <button
+            onClick={() => setShowSendLink((v) => !v)}
+            disabled={!profile}
+            title={!profile ? "Zuerst ein Wunschmieter-Profil anlegen" : "Bewerbungslink per E-Mail versenden"}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-orange-400 hover:text-orange-600 disabled:opacity-40 transition-colors"
+          >
+            <Mail className="w-3.5 h-3.5" /> Per E-Mail senden
+          </button>
+          <button
             onClick={() => setShowNew((v) => !v)}
             disabled={!profile}
             title={!profile ? "Zuerst ein Wunschmieter-Profil anlegen" : undefined}
@@ -147,6 +183,35 @@ export function ApplicantsSection({
           </button>
         </div>
       </div>
+
+      {showSendLink && (
+        <form onSubmit={sendApplicationLink} className={`${cardCls} p-4 mb-3 space-y-3`}>
+          <div>
+            <label className={labelCls}>E-Mail-Adresse(n) der Interessenten (kommagetrennt oder je Zeile eine)</label>
+            <textarea
+              rows={3} value={sendLinkEmails} onChange={(e) => setSendLinkEmails(e.target.value)}
+              placeholder="interessent1@example.com, interessent2@example.com" className={`${inputCls} w-full`}
+            />
+          </div>
+          {sendLinkResults && (
+            <div className="space-y-1">
+              {sendLinkResults.map((r) => (
+                <p key={r.email} className={`text-xs ${r.ok ? "text-emerald-600 dark:text-emerald-400" : "text-red-500"}`}>
+                  {r.email}: {r.ok ? "gesendet" : `fehlgeschlagen (${r.error})`}
+                </p>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <button type="submit" disabled={sendingLink} className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50">
+              {sendingLink ? <Loader2 className="w-4 h-4 animate-spin" /> : "Link senden"}
+            </button>
+            <button type="button" onClick={() => setShowSendLink(false)} className="p-2 text-gray-400 hover:text-gray-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </form>
+      )}
 
       {showNew && (
         <form onSubmit={createApplicant} className={`${cardCls} p-4 mb-3 space-y-3`}>

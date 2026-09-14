@@ -33,6 +33,7 @@ export default function LoginPage() {
         setLoading(false);
         return;
       }
+      logLoginEvent();
       router.push("/dashboard");
       router.refresh();
       return;
@@ -61,8 +62,16 @@ export default function LoginPage() {
     }
 
     // E-Mail-Bestätigung deaktiviert → direkt einloggen
+    logLoginEvent();
     router.push("/dashboard");
     router.refresh();
+  }
+
+  // Supabase Auth feuert keinen serverseitigen Login-Hook — der Client meldet
+  // den erfolgreichen Login daher selbst (Session existiert zu diesem
+  // Zeitpunkt bereits, withAuth() in der Route kann sie also lesen).
+  function logLoginEvent() {
+    fetch("/api/auth/login-event", { method: "POST" }).catch(() => {});
   }
 
   return (
