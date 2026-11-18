@@ -51,6 +51,7 @@ export default function BewerbungPage() {
   const [householdSize, setHouseholdSize] = useState("");
   const [desiredMoveIn, setDesiredMoveIn] = useState("");
   const [files, setFiles] = useState<Partial<Record<ApplicantDocType, File>>>({});
+  const [website, setWebsite] = useState(""); // Honeypot, für Menschen unsichtbar
 
   useEffect(() => {
     fetch(`/api/public/mietermatching/${unitId}`)
@@ -76,6 +77,7 @@ export default function BewerbungPage() {
     if (employmentType) form.set("employment_type", employmentType);
     if (householdSize) form.set("household_size", householdSize);
     if (desiredMoveIn) form.set("desired_move_in", desiredMoveIn);
+    if (website) form.set("website", website);
     for (const [docType, file] of Object.entries(files)) {
       if (file) form.set(`doc_${docType}`, file);
     }
@@ -137,6 +139,13 @@ export default function BewerbungPage() {
         </div>
 
         <form onSubmit={submit} className="bg-white border border-gray-200 rounded-2xl p-6 sm:p-8 space-y-5 dark:bg-gray-900 dark:border-gray-800">
+          {/* Honeypot gegen Bots: nicht sichtbar, nicht per Tab erreichbar */}
+          <div aria-hidden="true" style={{ position: "absolute", left: "-10000px", width: 1, height: 1, overflow: "hidden" }}>
+            <label>
+              Website
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+            </label>
+          </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className={labelCls}>Vorname *</label>
