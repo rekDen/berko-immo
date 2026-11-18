@@ -53,6 +53,7 @@ Danach eine `.env.local` im Projektroot anlegen (siehe unten).
 |---|---|
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase-Client im Browser |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-seitiger Zugriff, umgeht RLS (nie im Frontend nutzen) |
+| `CREDENTIALS_ENCRYPTION_KEY` | 32 Byte, Base64. Verschlüsselt gespeicherte IMAP-Passwörter (AES-256-GCM). Erzeugen: `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`. Nicht verlieren und nicht wechseln, sonst sind gespeicherte Passwörter unlesbar. |
 | `ANTHROPIC_API_KEY`, `KIMI_API_KEY` | KI-Modelle |
 | `IONOS_API_KEY`, `IONOS_API_SECRET` | IONOS AI Model Hub für Embeddings |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWD` | E-Mail-Versand |

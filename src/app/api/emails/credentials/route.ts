@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { withAuth, unauthorized, badRequest } from "@/lib/supabase/api";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { testImapConnection } from "@/lib/imap";
+import { encryptSecret } from "@/lib/secrets";
 
 /**
  * GET /api/emails/credentials
@@ -79,6 +80,14 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  let encryptedPassword: string;
+  try {
+    encryptedPassword = encryptSecret(credentials.password);
+  } catch (err) {
+    console.error("[credentials] Verschlüsselung fehlgeschlagen:", err instanceof Error ? err.message : err);
+    return NextResponse.json({ error: "Zugangsdaten können derzeit nicht gespeichert werden." }, { status: 500 });
+  }
+
   const admin = createAdminClient();
   const { error } = await admin.from("email_accounts").upsert(
     {
@@ -88,7 +97,7 @@ export async function POST(request: NextRequest) {
       imap_host: credentials.host,
       imap_port: credentials.port,
       imap_user: credentials.user,
-      imap_password: credentials.password,
+      imap_password: encryptedPassword,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" }
