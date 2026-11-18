@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
         date: new Date().toISOString(),
       })
       .eq("id", id)
+      .eq("tenant_id", tenantId)
       .eq("folder", "draft")
       .select()
       .single();

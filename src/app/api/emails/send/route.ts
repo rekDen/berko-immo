@@ -52,7 +52,9 @@ export async function POST(request: NextRequest) {
     if (draft_id) {
       await admin.from("emails")
         .update({ deleted_at: new Date().toISOString() })
-        .eq("id", draft_id);
+        .eq("id", draft_id)
+        .eq("tenant_id", tenantId)
+        .eq("folder", "draft");
     }
 
     await admin.from("emails").insert({

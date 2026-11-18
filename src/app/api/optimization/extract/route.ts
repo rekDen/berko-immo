@@ -5,6 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const anthropic = new Anthropic();
 
+type UserClient = NonNullable<Awaited<ReturnType<typeof withAuth>>["supabase"]>;
+
 // Strukturierte Zielfelder (AI extrahiert nur, rechnet nie — Spec §10).
 const EXTRACT_TOOL: Anthropic.Tool = {
   name: "objektdaten",
@@ -66,15 +68,21 @@ const EXTRACT_TOOL: Anthropic.Tool = {
   },
 };
 
-async function ladeDokumentBlock(documentId: string): Promise<Anthropic.ContentBlockParam | null> {
-  const admin = createAdminClient();
-  const { data: doc } = await admin
+async function ladeDokumentBlock(
+  supabase: UserClient,
+  documentId: string,
+): Promise<Anthropic.ContentBlockParam | null> {
+  // RLS-gescopter Read: nur Dokumente des eigenen Tenants sind sichtbar.
+  const { data: doc } = await supabase
     .from("documents")
     .select("storage_path, mime_type, file_name")
     .eq("id", documentId)
+    .is("deleted_at", null)
     .single();
   if (!doc) return null;
 
+  // Storage-Download erst nach erfolgreicher Prüfung über den Admin-Client.
+  const admin = createAdminClient();
   const { data: blob } = await admin.storage.from("documents").download(doc.storage_path);
   if (!blob) return null;
 
@@ -98,7 +106,8 @@ export async function POST(request: NextRequest) {
   const content: Anthropic.ContentBlockParam[] = [];
 
   if (body.document_id) {
-    const block = await ladeDokumentBlock(body.document_id);
+    if (typeof body.document_id !== "string") return badRequest("document_id muss ein String sein");
+    const block = await ladeDokumentBlock(supabase, body.document_id);
     if (!block) return NextResponse.json({ error: "Dokument nicht gefunden" }, { status: 404 });
     content.push(block);
   } else if (typeof body.text === "string" && body.text.trim()) {
